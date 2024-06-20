@@ -3,10 +3,12 @@ import numpy as np
 import time
 import json
 from math import atan, acos, sqrt, pow, pi
+from datetime import datetime
 
 class SerialControl():
     def __init__(self):
         self.data = 0
+        self.open = False
         self.msg = []
         self.coms = []
         self.sync_try_count = 10
@@ -48,6 +50,7 @@ class SerialControl():
             if self.ser.is_open:
                 print("Port is already opened")
                 self.ser.status = True
+                self.open = True
             else:
                 self.ser = serial.Serial(gui.comboBox.currentText(), 115200, timeout=0.1)
                 # self.ser = serial.Serial('COM10', 115200, timeout=0.1)
@@ -57,16 +60,20 @@ class SerialControl():
                 # self.ser.timeout = 0.01
                 # self.ser.open()
                 self.ser.status = True
+                self.open = True
         except:
             self.ser.status = False
+            self.open = False
 
     def serial_close(self):
         try:
             self.ser.is_open
             self.ser.close()
             self.ser.status = False
+            self.open = False
         except:
             self.ser.status = False
+            self.open = False
 
     def set_ref_time(self):
         if len(self.XAxisData) == 0:
@@ -171,7 +178,7 @@ class SerialControl():
                     signal.finished.emit()
                     break
 
-    def sent_trajectory(self, gui):
+    def sent_trajectory_gain(self, gui):
         theta1 = []
         theta2 = []
         theta3 = []
@@ -215,7 +222,7 @@ class SerialControl():
             rad2.append(calcTheta2)
             rad3.append(calcTheta3)
 
-        data = {
+        data1 = {
             "finalTheta": {
                 "satu": {
                     "theta1": theta1[0],
@@ -252,47 +259,68 @@ class SerialControl():
                     "theta2": theta2[6],
                     "theta3": theta3[6]
                 }
+            }
+        }
+        data2 = {
+            "matrixGain": {
+                "satu": a,
+                "dua": b,
+                "tiga": c
             },
             "targetInRad": {
                 "rad1": rad1,
                 "rad2": rad2,
                 "rad3": rad3
-            },
-            "matrixGain": {
-                "satu": a,
-                "dua": b,
-                "tiga": c
             }
         }
-        print(a)
-        print(b)
-        print(c)
-        print(x)
-        print(y)
-        print(z)
-        print(data)
-        sentData = json.dumps(data)
+
+        sentData = json.dumps(data1)
         sentData = sentData + '\n'
         self.ser.write(sentData.encode())
+        temp = self.ser.readline()
+        temp = temp.decode()
+        if "data 1 ok" in temp:
+            pass
+        else:
+            print("not ok")
 
-    def serial_torque_print_test(self, signal, gui):
-        a = True
-        while a:
-            tdata = self.ser.read(self.ser.inWaiting())
+        sentData = json.dumps(data2)
+        sentData = sentData + '\n'
+        self.ser.write(sentData.encode())
+        temp = self.ser.readline()
+        temp = temp.decode()
+        if "data 2 ok" in temp:
+            pass
+        else:
+            print("not ok")
+
+    def serial_torque_print_test(self, signal):
+        self.a = True
+        # gui.plainTextEdit.appendPlainText("waktu\ttorsi 1\ttorsi 2\t torsi 3")
+        signal.progress.emit("waktu\ttorsi 1\ttorsi 2\t torsi 3")
+        while self.a:
+            tdata = self.ser.readline()
+            # tdata = self.ser.read()
             # data_left = self.ser.inWaiting()
             # tdata += self.ser.read(data_left)
             if tdata:
-                data = tdata.decode()
+                # data = tdata.decode()
+                dt = datetime.now().strftime("%H:%M:%S")
+                data = json.loads(tdata)
                 print(data)
-                if data != "":
-                    time.sleep(0.7)
-                    gui.plainTextEdit.appendPlainText(data)
-                if "endData" in data:
+                # gui.plainTextEdit.appendPlainText(f"{dt}\t{data.get('satu')}\t{data.get('dua')}\t{data.get('tiga')}")
+                signal.progress.emit(f"{dt}\t{data.get('satu')}\t{data.get('dua')}\t{data.get('tiga')}")
+                # if data != "":
+                #     time.sleep(0.7)
+                #     gui.plainTextEdit.appendPlainText(data)
+                if "done" in data:
                     print("data ended")
-                    a = False
-                    time.sleep(0.7)
-                    gui.plainTextEdit.appendPlainText("test 12345")
-                    signal.finished.emit()
+                    self.a = False
+                    signal.progress.emit("done")
+                    # time.sleep(0.7)
+                    # gui.plainTextEdit.appendPlainText("data ended")
+                    # signal.finished.emit()
+                    # gui.plainTextEdit.clear()
             # tdata = tdata.decode()
             # if "endData" in tdata:
             #     print("data ended")
@@ -315,7 +343,7 @@ class SerialControl():
         self.ser.write(sentData.encode())
         temp = self.ser.readline()
         temp = temp.decode('utf8')
-        print(temp)
+        temp = json.loads(temp)
         if "ok2" in temp:
             pass
         else:

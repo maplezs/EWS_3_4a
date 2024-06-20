@@ -163,12 +163,12 @@ l1 = 0.125
 l2 = 0.15
 l3 = 0.18
 # value of x != 0
-x = [0.15, 0.15, 0.15, 0.15, 0.15, 0.20, 0.20]
-y = [0.05, 0.05, 0.15, 0.15, 0.05, 0, 0]
-z = [0.08, 0.18, 0.18, 0.08, 0.08, 0.1, 0.1]
-# x = [0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.2]
-# y = [0.15, 0.15, 0.15, -0.15, -0.15, -0.15, 0]
-# z = [0.2, 0.04, 0.2, 0.2, 0.06, 0.2, 0.2]
+# x = [0.15, 0.15, 0.15, 0.15, 0.15, 0.20, 0.20]
+# y = [0.05, 0.05, 0.15, 0.15, 0.05, 0, 0]
+# z = [0.08, 0.18, 0.18, 0.08, 0.08, 0.1, 0.1]
+x = [0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.00001, 0.2]
+y = [0.15, 0.15, 0.15, -0.15, -0.15, -0.15, 0]
+z = [0.2, 0.04, 0.2, 0.2, 0.04, 0.2, 0.2]
 
 # x = [0.15, 0.15, 0.0061, 0.0061, 0.0061, 0.0061, 0.0061]
 # y = [0.15, 0, 0, 0, 0, 0, 0]
@@ -236,74 +236,32 @@ data = {
             "theta2": theta2[6],
             "theta3": theta3[6]
         }
-    },
-    "targetInRad": {
-        "rad1": {
-            "1": rad1[0],
-            "2": rad1[1],
-            "3": rad1[2],
-            "4": rad1[3],
-            "5": rad1[4],
-            "6": rad1[5],
-            "7": rad1[6],
-        },
-        "rad2": {
-            "1": rad2[0],
-            "2": rad2[1],
-            "3": rad2[2],
-            "4": rad2[3],
-            "5": rad2[4],
-            "6": rad2[5],
-            "7": rad2[6],
-        },
-        "rad3": {
-            "1": rad3[0],
-            "2": rad3[1],
-            "3": rad3[2],
-            "4": rad3[3],
-            "5": rad3[4],
-            "6": rad3[5],
-            "7": rad3[6],
-        }
-    },
-    "matrixGain": {
-        "satu": {
-            "1": a[0],
-            "2": a[1],
-            "3": a[2],
-            "4": a[3],
-            "5": a[4],
-            "6": a[5],
-        },
-        "dua": {
-            "1": b[0],
-            "2": b[1],
-            "3": b[2],
-            "4": b[3],
-            "5": b[4],
-            "6": b[5],
-        },
-        "tiga": {
-            "1": c[0],
-            "2": c[1],
-            "3": c[2],
-            "4": c[3],
-            "5": c[4],
-            "6": c[5],
-        }
     }
 }
-
+data2 = {
+    "matrixGain": {
+        "satu": a,
+        "dua": b,
+        "tiga": c
+    },
+    "targetInRad": {
+        "rad1": rad1,
+        "rad2": rad2,
+        "rad3": rad3
+    }
+}
 sentData = json.dumps(data)
-sentData = sentData + '\r\n'
+sentData = sentData + '\n'
 print(sentData.encode())
-# print(theta1)
-# print(theta2)
-# print(theta3)
-# s = serial.Serial('COM7', 115200)
-# time.sleep(2)
-# s.write(sentData.encode())
-# temp = s.readline()
-# print(temp)
-# time.sleep(1)
-# s.close()
+
+sentData = json.dumps(data2)
+sentData = sentData + '\n'
+print(sentData.encode())
+print(theta1)
+print(theta2)
+print(theta3)
+s = serial.Serial('COM14', 115200)
+time.sleep(2)
+s.write(sentData.encode())
+time.sleep(1)
+s.close()

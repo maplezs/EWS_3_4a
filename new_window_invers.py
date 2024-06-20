@@ -1,11 +1,12 @@
 import sys
 import time
+from datetime import datetime
 
 from PyQt6.QtCore import (QCoreApplication, QMetaObject, QObject, QRect, pyqtSignal, QThread)
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import (QApplication, QComboBox, QGroupBox, QLabel,
                              QLineEdit, QMainWindow, QMenu, QMenuBar, QCheckBox,
-                             QPushButton, QMessageBox, QStatusBar, QWidget)
+                             QPushButton, QMessageBox, QStatusBar, QWidget, QPlainTextEdit)
 from serial_control import SerialControl
 from pyqtgraph import PlotWidget
 
@@ -18,8 +19,9 @@ class Ui_MainWindow(object):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         # MainWindow.resize(359, 158)
-        MainWindow.setMinimumSize(359, 158)
+        # MainWindow.setMinimumSize(359, 158)
         # MainWindow.resize(738, 405)
+        MainWindow.resize(1057, 448)
         self.actionTentang = QAction(MainWindow)
         self.actionTentang.setObjectName(u"actionTentang")
         self.actionTentang_2 = QAction(MainWindow)
@@ -185,6 +187,12 @@ class Ui_MainWindow(object):
         self.pushButton_5 = QPushButton(self.widget_2)
         self.pushButton_5.setObjectName(u"pushButton_5")
         self.pushButton_5.setGeometry(QRect(310, 200, 75, 31))
+        self.groupBox_7 = QGroupBox(self.centralwidget)
+        self.groupBox_7.setObjectName(u"groupBox_7")
+        self.groupBox_7.setGeometry(QRect(740, 0, 291, 361))
+        self.plainTextEdit = QPlainTextEdit(self.groupBox_7)
+        self.plainTextEdit.setObjectName(u"plainTextEdit")
+        self.plainTextEdit.setGeometry(QRect(10, 20, 271, 331))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
@@ -243,6 +251,7 @@ class Ui_MainWindow(object):
         self.labelMatrix_3.setText(QCoreApplication.translate("MainWindow", u"3", None))
         self.pushButton_5.setText(QCoreApplication.translate("MainWindow", u"Send", None))
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
+        self.groupBox_7.setTitle(QCoreApplication.translate("MainWindow", u"Log Torsi", None))
         self.menuBantuan.setTitle(QCoreApplication.translate("MainWindow", u"Bantuan", None))
 
     def configureWidget(self, MainWindow):
@@ -252,15 +261,28 @@ class Ui_MainWindow(object):
         self.pushButton_2.clicked.connect(lambda: self.serial_connect(MainWindow))
         self.pushButton_3.clicked.connect(lambda: self.trajectory_menu(MainWindow))
         self.pushButton_4.clicked.connect(lambda: self.test_stream_stop())
-        self.pushButton_5.clicked.connect(lambda: self.serial.sent_trajectory(self))
+        # self.pushButton_5.clicked.connect(lambda: self.serial.sent_trajectory(self))
+        self.pushButton_5.clicked.connect(lambda: self.test_func())
         self.checkBox.stateChanged.connect(lambda: self.toogle_checkbox())
         self.groupBox_2.hide()
+        self.plainTextEdit.setReadOnly(True)
         # initial port listing
         self.serial.serial_com_list(self)
 
     ## testing function
     def test_func(self):
-        self.inputMatrix_1.text()
+        self.serial.serial_trajectory_start()
+        self.thread = QThread()
+        self.worker = Worker3(self, self.serial)
+        self.worker.moveToThread(self.thread)
+
+        self.thread.started.connect(self.worker.run)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.worker.finished.connect(self.thread.quit)
+        self.thread.finished.connect(self.thread.deleteLater)
+
+        self.thread.start()
+
     def trajectory_menu(self, MainWindow):
         self.pushButton_4.setEnabled(True)
         self.pushButton_3.setEnabled(False)
@@ -394,6 +416,18 @@ class Worker2(QObject):
         self.serial.serial_sync(self, self.gui)
         # self.serial.test_sync(self, self.gui)
 
+class Worker3(QObject):
+    finished = pyqtSignal()
+    progress = pyqtSignal(int)
+    a = "test"
+
+    def __init__(self, gui, serial):
+        super().__init__()
+        self.serial = serial
+        self.gui = gui
+
+    def run(self):
+        self.serial.serial_torque_print_test(self, self.gui)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

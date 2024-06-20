@@ -275,6 +275,32 @@ class SerialControl():
         sentData = sentData + '\n'
         self.ser.write(sentData.encode())
 
+    def serial_torque_print_test(self, signal, gui):
+        a = True
+        while a:
+            tdata = self.ser.read(self.ser.inWaiting())
+            # data_left = self.ser.inWaiting()
+            # tdata += self.ser.read(data_left)
+            if tdata:
+                data = tdata.decode()
+                print(data)
+                if data != "":
+                    time.sleep(0.7)
+                    gui.plainTextEdit.appendPlainText(data)
+                if "endData" in data:
+                    print("data ended")
+                    a = False
+                    time.sleep(0.7)
+                    gui.plainTextEdit.appendPlainText("test 12345")
+                    signal.finished.emit()
+            # tdata = tdata.decode()
+            # if "endData" in tdata:
+            #     print("data ended")
+            #     a = False
+            #     gui.plainTextEdit.appendPlainText("test 12345")
+            #     print(signal.a)
+            #     signal.finished.emit()
+
     def serial_trajectory_start(self):
         sentData = json.dumps(self.trajectory_start)
         sentData = sentData + '\n'
@@ -282,7 +308,15 @@ class SerialControl():
         temp = self.ser.readline()
         temp = temp.decode('utf8')
         print(temp)
-        if "start_ok" in temp:
+        if "ok1" in temp:
+            pass
+        else:
+            print("not ok")
+        self.ser.write(sentData.encode())
+        temp = self.ser.readline()
+        temp = temp.decode('utf8')
+        print(temp)
+        if "ok2" in temp:
             pass
         else:
             print("not ok")

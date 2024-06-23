@@ -296,38 +296,26 @@ class SerialControl():
 
     def serial_torque_print_test(self, signal):
         self.a = True
-        # gui.plainTextEdit.appendPlainText("waktu\ttorsi 1\ttorsi 2\t torsi 3")
-        signal.progress.emit("waktu\ttorsi 1\ttorsi 2\t torsi 3")
+        signal.progress1.emit("waktu\ttorsi 1\ttorsi 2\t torsi 3")
+        signal.progress2.emit("waktu\tX\tY\tZ")
         while self.a:
             tdata = self.ser.readline()
-            # tdata = self.ser.read()
-            # data_left = self.ser.inWaiting()
-            # tdata += self.ser.read(data_left)
             if tdata:
-                # data = tdata.decode()
                 dt = datetime.now().strftime("%H:%M:%S")
                 data = json.loads(tdata)
-                print(data)
-                # gui.plainTextEdit.appendPlainText(f"{dt}\t{data.get('satu')}\t{data.get('dua')}\t{data.get('tiga')}")
-                signal.progress.emit(f"{dt}\t{data.get('satu')}\t{data.get('dua')}\t{data.get('tiga')}")
-                # if data != "":
-                #     time.sleep(0.7)
-                #     gui.plainTextEdit.appendPlainText(data)
+                # print(data)
+                signal.progress1.emit(f"{dt}\t{data.get('satu')}\t{data.get('dua')}\t{data.get('tiga')}")
+                data_torque = [data.get('satu'), data.get('dua'), data.get('tiga')]
+                signal.progress1_data.emit(data_torque)
+                signal.progress2.emit(f"{dt}\t{data.get('fk1')}\t{data.get('fk2')}\t{data.get('fk3')}")
+                data_trajectory = [data.get('fk1'), data.get('fk2'), data.get('fk3')]
+                signal.progress2_data.emit(data_trajectory)
                 if "done" in data:
                     print("data ended")
                     self.a = False
-                    signal.progress.emit("done")
-                    # time.sleep(0.7)
-                    # gui.plainTextEdit.appendPlainText("data ended")
-                    # signal.finished.emit()
-                    # gui.plainTextEdit.clear()
-            # tdata = tdata.decode()
-            # if "endData" in tdata:
-            #     print("data ended")
-            #     a = False
-            #     gui.plainTextEdit.appendPlainText("test 12345")
-            #     print(signal.a)
-            #     signal.finished.emit()
+                    signal.progress1.emit("===================================================")
+                    signal.progress2.emit("===================================================")
+                    signal.finished.emit()
 
     def serial_trajectory_start(self):
         sentData = json.dumps(self.trajectory_start)

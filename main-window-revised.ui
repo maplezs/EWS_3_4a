@@ -145,7 +145,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>220</y>
+      <y>190</y>
       <width>941</width>
       <height>251</height>
      </rect>
@@ -776,7 +776,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Tutup</string>
+       <string>Buka</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_15">
@@ -789,7 +789,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Buka</string>
+       <string>Tutup</string>
       </property>
      </widget>
      <widget class="QComboBox" name="comboBox_4">
@@ -902,6 +902,32 @@
        <string>Log Trajektori</string>
       </property>
      </widget>
+    </widget>
+    <widget class="QCheckBox" name="checkBox_2">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>70</y>
+       <width>16</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_16">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>90</y>
+       <width>41</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Tanpa&lt;br/&gt;Gripper&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
     </widget>
    </widget>
   </widget>

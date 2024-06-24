@@ -227,13 +227,13 @@ class Ui_MainWindow(object):
         self.groupBox_9.setObjectName(u"groupBox_9")
         self.groupBox_9.setGeometry(QRect(20, 30, 111, 151))
         self.comboBox_2 = QComboBox(self.groupBox_9)
-        self.comboBox_2.addItem("")
-        self.comboBox_2.addItem("")
-        self.comboBox_2.addItem("")
-        self.comboBox_2.addItem("")
-        self.comboBox_2.addItem("")
-        self.comboBox_2.addItem("")
-        self.comboBox_2.addItem("")
+        self.comboBox_2.addItem("1", ["satu", "tutup"])
+        self.comboBox_2.addItem("2", ["dua", "tutup"])
+        self.comboBox_2.addItem("3", ["tiga", "tutup"])
+        self.comboBox_2.addItem("4", ["empat", "tutup"])
+        self.comboBox_2.addItem("5", ["lima", "tutup"])
+        self.comboBox_2.addItem("6", ["enam", "tutup"])
+        self.comboBox_2.addItem("7", ["tujuh", "tutup"])
         self.comboBox_2.setObjectName(u"comboBox_2")
         self.comboBox_2.setGeometry(QRect(20, 40, 71, 22))
         self.label_5 = QLabel(self.groupBox_9)
@@ -243,13 +243,13 @@ class Ui_MainWindow(object):
         self.label_15.setObjectName(u"label_15")
         self.label_15.setGeometry(QRect(40, 20, 31, 16))
         self.comboBox_4 = QComboBox(self.groupBox_9)
-        self.comboBox_4.addItem("")
-        self.comboBox_4.addItem("")
-        self.comboBox_4.addItem("")
-        self.comboBox_4.addItem("")
-        self.comboBox_4.addItem("")
-        self.comboBox_4.addItem("")
-        self.comboBox_4.addItem("")
+        self.comboBox_4.addItem("1", ["satu", "buka"])
+        self.comboBox_4.addItem("2", ["dua", "buka"])
+        self.comboBox_4.addItem("3", ["tiga", "buka"])
+        self.comboBox_4.addItem("4", ["empat", "buka"])
+        self.comboBox_4.addItem("5", ["lima", "buka"])
+        self.comboBox_4.addItem("6", ["enam", "buka"])
+        self.comboBox_4.addItem("7", ["tujuh", "buka"])
         self.comboBox_4.setObjectName(u"comboBox_4")
         self.comboBox_4.setGeometry(QRect(20, 110, 71, 22))
         self.groupBox_10 = QGroupBox(self.groupBox_6)
@@ -267,6 +267,12 @@ class Ui_MainWindow(object):
         self.label_19 = QLabel(self.groupBox_10)
         self.label_19.setObjectName(u"label_19")
         self.label_19.setGeometry(QRect(20, 90, 71, 16))
+        self.checkBox_2 = QCheckBox(self.groupBox_6)
+        self.checkBox_2.setObjectName(u"checkBox_2")
+        self.checkBox_2.setGeometry(QRect(150, 70, 16, 20))
+        self.label_16 = QLabel(self.groupBox_6)
+        self.label_16.setObjectName(u"label_16")
+        self.label_16.setGeometry(QRect(140, 90, 41, 41))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
@@ -355,10 +361,11 @@ class Ui_MainWindow(object):
         self.pushButton_9.setText(QCoreApplication.translate("MainWindow", u"Plot", None))
         self.label_18.setText(QCoreApplication.translate("MainWindow", u"Log Torsi", None))
         self.label_19.setText(QCoreApplication.translate("MainWindow", u"Log Trajektori", None))
+        self.label_16.setText(QCoreApplication.translate("MainWindow",
+                                                         u"<html><head/><body><p align=\"center\">Tanpa<br/>Gripper</p></body></html>",
+                                                         None))
 
     def configureWidget(self, MainWindow):
-        self.test123 = [1,2,3]
-        self.test1234 = [1,2,3,4,5]
         self.actionKeluar.setShortcut("Ctrl+Q")
         self.actionKeluar.triggered.connect(MainWindow.close)
         self.pushButton.clicked.connect(lambda: self.serial.serial_com_list(self))
@@ -366,7 +373,8 @@ class Ui_MainWindow(object):
         self.pushButton_3.clicked.connect(lambda: self.trajectory_menu(MainWindow))
         self.pushButton_4.clicked.connect(lambda: self.test_stream_stop())
         # self.pushButton_5.clicked.connect(lambda: self.serial.sent_trajectory(self))
-        self.pushButton_5.clicked.connect(lambda: self.test_func())
+        self.pushButton_5.clicked.connect(lambda: self.send_func())
+        # self.pushButton_5.clicked.connect(lambda: self.mock_func())
         self.pushButton_6.clicked.connect(lambda: self.saveFile(MainWindow))
         self.pushButton_7.clicked.connect(lambda: self.openFile(MainWindow))
         self.pushButton_8.clicked.connect(lambda: self.plotWindow("Torsi", self.data_torque))
@@ -374,6 +382,7 @@ class Ui_MainWindow(object):
                                                                   self.data_trajectory))
         # self.pushButton_9.clicked.connect(lambda: self.plotWindow("Trajektori", self.test123, self.test1234))
         self.checkBox.stateChanged.connect(lambda: self.toogle_checkbox())
+        self.checkBox_2.stateChanged.connect(lambda: self.toogle_checkbox_2())
         self.groupBox_2.hide()
         self.plainTextEdit.setReadOnly(True)
         self.plainTextEdit_2.setReadOnly(True)
@@ -384,6 +393,14 @@ class Ui_MainWindow(object):
         self.list_z = [self.z0, self.z1, self.z2, self.z3, self.z4, self.z5, self.z6]
         self.list_gain = [self.inputMatrix_1, self.inputMatrix_2, self.inputMatrix_3]
 
+    def mock_func(self):
+        a = self.comboBox_2.itemData(self.comboBox_2.currentIndex())
+        b = self.comboBox_4.itemData(self.comboBox_4.currentIndex())
+        print(a)
+        print(type(a))
+
+        print(b)
+        print(type(b))
     def check_filled(self):
         self.unfilled1 = False
         self.unfilled2 = False
@@ -446,16 +463,26 @@ class Ui_MainWindow(object):
             print(f"data trajektori servo {self.data_trajectory}")
             print(f"data trajektori input {self.data_trajectory_input}")
 
-    ## testing function
-    def test_func(self):
+    def send_func(self):
         check = self.check_filled()
+        if not self.checkBox_2.isChecked():
+            if self.comboBox_2.currentText() == self.comboBox_4.currentText():
+                self.msgBox.setText(f"Aksi buka tutup gripper tidak boleh pada iterasi yang sama!")
+                self.msgBox.setWindowTitle("Informasi")
+                self.msgBox.setIcon(self.msgBox.icon().Information)
+                self.msgBox.exec()
         if check:
             if self.serial.open:
                 self.plainTextEdit.clear()
                 self.plainTextEdit_2.clear()
                 self.clear_data()
-                # self.serial.serial_trajectory_start()
-                self.serial.sent_trajectory_gain(self)
+
+                gripper_action_tutup = self.comboBox_2.itemData(self.comboBox_2.currentIndex())
+                gripper_action_buka = self.comboBox_4.itemData(self.comboBox_4.currentIndex())
+                gripper_action = [gripper_action_tutup[0], gripper_action_tutup[1], gripper_action_buka[0],
+                                  gripper_action_buka[1]]
+
+                self.serial.sent_trajectory_gain(self, gripper_action)
 
                 self.thread = QThread()
                 self.worker = Worker3(self.serial)
@@ -543,11 +570,20 @@ class Ui_MainWindow(object):
             self.z5.clear()
             self.z6.clear()
 
+    def toogle_checkbox_2(self):
+        if self.checkBox_2.isChecked():
+            self.comboBox_2.setEnabled(False)
+            self.comboBox_4.setEnabled(False)
+        else:
+            self.comboBox_2.setEnabled(True)
+            self.comboBox_4.setEnabled(True)
+
     def serial_connect(self, MainWindow):
         if self.pushButton_2.text() == "Connect":
             self.serial.serial_connect(self)
             if self.serial.ser.status:
                 self.plainTextEdit.clear()
+                self.plainTextEdit_2.clear()
                 self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"Disconnect", None))
                 self.pushButton.setEnabled(False)
                 self.comboBox.setEnabled(False)

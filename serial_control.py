@@ -5,6 +5,7 @@ import json
 from math import atan, acos, sqrt, pow, pi
 from datetime import datetime
 
+
 class SerialControl():
     def __init__(self):
         self.data = 0
@@ -178,7 +179,7 @@ class SerialControl():
                     signal.finished.emit()
                     break
 
-    def sent_trajectory_gain(self, gui):
+    def sent_trajectory_gain(self, gui, action):
         theta1 = []
         theta2 = []
         theta3 = []
@@ -188,12 +189,23 @@ class SerialControl():
         l1 = 0.125
         l2 = 0.15
         l3 = 0.18
-        a = gui.inputMatrix_1.text().split(" ")
-        b = gui.inputMatrix_2.text().split(" ")
-        c = gui.inputMatrix_3.text().split(" ")
-        # matrix_1 = [float(num) for num in a]
-        # matrix_2 = [float(num) for num in b]
-        # matrix_3 = [float(num) for num in c]
+        a = gui.inputMatrix_1.text()
+        b = gui.inputMatrix_2.text()
+        c = gui.inputMatrix_3.text()
+        if '\t' in a:
+            a = a.split("\t")
+        if '\t' in b:
+            b = b.split("\t")
+        if '\t' in c:
+            c = c.split("\t")
+
+        if ' ' in a:
+            a = a.split(" ")
+        if ' ' in b:
+            b = b.split(" ")
+        if ' ' in c:
+            c = c.split(" ")
+
         x = [float(gui.x0.text()), float(gui.x1.text()), float(gui.x2.text()), float(gui.x3.text()),
              float(gui.x4.text()), float(gui.x5.text()), float(gui.x6.text())]
         y = [float(gui.y0.text()), float(gui.y1.text()), float(gui.y2.text()), float(gui.y3.text()),
@@ -273,7 +285,8 @@ class SerialControl():
                 "rad3": rad3
             }
         }
-
+        if not gui.checkBox_2.isChecked():
+            data2.update({'gripper': {action[0]: action[1], action[2]: action[3]}})
         sentData = json.dumps(data1)
         sentData = sentData + '\n'
         self.ser.write(sentData.encode())
@@ -282,7 +295,7 @@ class SerialControl():
         if "data 1 ok" in temp:
             pass
         else:
-            print("not ok")
+            print("not ok  1")
 
         sentData = json.dumps(data2)
         sentData = sentData + '\n'
@@ -292,18 +305,17 @@ class SerialControl():
         if "data 2 ok" in temp:
             pass
         else:
-            print("not ok")
+            print("not ok 2")
 
     def serial_torque_print_test(self, signal):
         self.a = True
-        signal.progress1.emit("waktu\ttorsi 1\ttorsi 2\t torsi 3")
+        signal.progress1.emit("waktu\ttorsi 1\ttorsi 2\ttorsi 3")
         signal.progress2.emit("waktu\tX\tY\tZ")
         while self.a:
             tdata = self.ser.readline()
             if tdata:
                 dt = datetime.now().strftime("%H:%M:%S")
                 data = json.loads(tdata)
-                # print(data)
                 signal.progress1.emit(f"{dt}\t{data.get('satu')}\t{data.get('dua')}\t{data.get('tiga')}")
                 data_torque = [data.get('satu'), data.get('dua'), data.get('tiga')]
                 signal.progress1_data.emit(data_torque)
@@ -336,6 +348,7 @@ class SerialControl():
             pass
         else:
             print("not ok")
+
     def reset_data(self):
         self.YAxisData = []
         self.msg = []

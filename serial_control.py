@@ -309,25 +309,28 @@ class SerialControl():
 
     def serial_torque_print_test(self, signal):
         self.a = True
-        signal.progress1.emit("waktu\ttorsi 1\ttorsi 2\ttorsi 3")
-        signal.progress2.emit("waktu\tX\tY\tZ")
+        signal.progress1.emit("Iterasi\tWaktu\tTorsi 1\tTorsi 2\tTorsi 3")
+        signal.progress2.emit("Iterasi\tWaktu\tX\tY\tZ")
+        count = 1
         while self.a:
             tdata = self.ser.readline()
             if tdata:
                 dt = datetime.now().strftime("%H:%M:%S")
                 data = json.loads(tdata)
-                signal.progress1.emit(f"{dt}\t{data.get('satu')}\t{data.get('dua')}\t{data.get('tiga')}")
+                signal.progress1.emit(f"Iterasi {count}\t{dt}\t{data.get('satu')}\t{data.get('dua')}\t{data.get('tiga')}")
                 data_torque = [data.get('satu'), data.get('dua'), data.get('tiga')]
                 signal.progress1_data.emit(data_torque)
-                signal.progress2.emit(f"{dt}\t{data.get('fk1')}\t{data.get('fk2')}\t{data.get('fk3')}")
+                signal.progress2.emit(f"Iterasi {count}\t{dt}\t{data.get('fk1')}\t{data.get('fk2')}\t{data.get('fk3')}")
                 data_trajectory = [data.get('fk1'), data.get('fk2'), data.get('fk3')]
                 signal.progress2_data.emit(data_trajectory)
+                count += 1
                 if "done" in data:
                     print("data ended")
                     self.a = False
                     signal.progress1.emit("===================================================")
                     signal.progress2.emit("===================================================")
                     signal.finished.emit()
+                    del count
 
     def serial_trajectory_start(self):
         sentData = json.dumps(self.trajectory_start)

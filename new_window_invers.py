@@ -1,7 +1,7 @@
 import json
 import sys
-from PyQt6.QtCore import (QCoreApplication, QMetaObject, QObject, QRect, pyqtSignal, QThread, QThreadPool)
-from PyQt6.QtGui import QAction
+from PyQt6.QtCore import (QCoreApplication, QMetaObject, QObject, QRect, pyqtSignal, QThread)
+from PyQt6.QtGui import QAction, QResizeEvent
 from PyQt6.QtWidgets import (QApplication, QComboBox, QGroupBox, QLabel, QFileDialog,
                              QLineEdit, QMainWindow, QMenu, QMenuBar, QCheckBox,
                              QPushButton, QMessageBox, QStatusBar, QWidget, QPlainTextEdit, QVBoxLayout)
@@ -13,8 +13,10 @@ from matplotlib.figure import Figure
 from serial_control import SerialControl
 
 
-class Ui_MainWindow(object):
-    def __init__(self, serial):
+class Ui_MainWindow():
+    def __init__(self, serial, MainWindow):
+        super().__init__()
+        self.mainWindow = MainWindow
         self.data_torque = None
         self.data_torque_satu = []
         self.data_torque_dua = []
@@ -25,23 +27,20 @@ class Ui_MainWindow(object):
         self.data_trajectory_z = []
         self.plot_windows = list()
         self.serial = serial
-        self.threadpool = QThreadPool()
 
-    def setupUi(self, MainWindow):
-        if not MainWindow.objectName():
-            MainWindow.setObjectName(u"MainWindow")
-        # MainWindow.resize(359, 158)
-        MainWindow.setMinimumSize(359, 158)
-        # MainWindow.resize(738, 405)
-        # MainWindow.resize(1057, 448)
-        MainWindow.resize(1290, 522)
-        self.actionTentang = QAction(MainWindow)
+    def setupUi(self):
+        if not self.mainWindow.objectName():
+            self.mainWindow.setObjectName(u"self.mainWindow")
+        self.mainWindow.setMinimumSize(359, 158)
+        self.mainWindow.resize(359, 158)
+        self.mainWindow.setMaximumSize(970, 666)
+        self.actionTentang = QAction(self.mainWindow)
         self.actionTentang.setObjectName(u"actionTentang")
-        self.actionTentang_2 = QAction(MainWindow)
+        self.actionTentang_2 = QAction(self.mainWindow)
         self.actionTentang_2.setObjectName(u"actionTentang_2")
-        self.actionKeluar = QAction(MainWindow)
+        self.actionKeluar = QAction(self.mainWindow)
         self.actionKeluar.setObjectName(u"actionKeluar")
-        self.centralwidget = QWidget(MainWindow)
+        self.centralwidget = QWidget(self.mainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.groupBox = QGroupBox(self.centralwidget)
         self.groupBox.setObjectName(u"groupBox")
@@ -75,10 +74,10 @@ class Ui_MainWindow(object):
         self.label_3.setGeometry(QRect(100, 40, 51, 31))
         self.widget_2 = QWidget(self.centralwidget)
         self.widget_2.setObjectName(u"widget_2")
-        self.widget_2.setGeometry(QRect(10, 220, 941, 251))
+        self.widget_2.setGeometry(QRect(0, 180, 971, 251))
         self.groupBox_4 = QGroupBox(self.widget_2)
         self.groupBox_4.setObjectName(u"groupBox_4")
-        self.groupBox_4.setGeometry(QRect(10, 20, 481, 171))
+        self.groupBox_4.setGeometry(QRect(10, 30, 481, 171))
         self.x4 = QLineEdit(self.groupBox_4)
         self.x4.setObjectName(u"x4")
         self.x4.setGeometry(QRect(290, 50, 51, 22))
@@ -177,7 +176,7 @@ class Ui_MainWindow(object):
         self.label_14.setGeometry(QRect(430, 30, 16, 16))
         self.groupBox_3 = QGroupBox(self.widget_2)
         self.groupBox_3.setObjectName(u"groupBox_3")
-        self.groupBox_3.setGeometry(QRect(510, 20, 421, 171))
+        self.groupBox_3.setGeometry(QRect(490, 30, 471, 171))
         self.inputMatrix_1 = QLineEdit(self.groupBox_3)
         self.inputMatrix_1.setObjectName(u"inputMatrix_1")
         self.inputMatrix_1.setGeometry(QRect(40, 40, 371, 22))
@@ -198,16 +197,16 @@ class Ui_MainWindow(object):
         self.labelMatrix_3.setGeometry(QRect(20, 100, 16, 16))
         self.pushButton_5 = QPushButton(self.widget_2)
         self.pushButton_5.setObjectName(u"pushButton_5")
-        self.pushButton_5.setGeometry(QRect(450, 200, 75, 31))
+        self.pushButton_5.setGeometry(QRect(450, 210, 75, 31))
         self.groupBox_7 = QGroupBox(self.centralwidget)
         self.groupBox_7.setObjectName(u"groupBox_7")
-        self.groupBox_7.setGeometry(QRect(610, 0, 331, 211))
+        self.groupBox_7.setGeometry(QRect(10, 410, 391, 211))
         self.plainTextEdit = QPlainTextEdit(self.groupBox_7)
         self.plainTextEdit.setObjectName(u"plainTextEdit")
-        self.plainTextEdit.setGeometry(QRect(10, 20, 311, 181))
+        self.plainTextEdit.setGeometry(QRect(10, 20, 371, 181))
         self.groupBox_5 = QGroupBox(self.centralwidget)
         self.groupBox_5.setObjectName(u"groupBox_5")
-        self.groupBox_5.setGeometry(QRect(360, 0, 241, 211))
+        self.groupBox_5.setGeometry(QRect(350, 0, 241, 211))
         self.pushButton_6 = QPushButton(self.groupBox_5)
         self.pushButton_6.setObjectName(u"pushButton_6")
         self.pushButton_6.setGeometry(QRect(90, 60, 75, 24))
@@ -216,16 +215,16 @@ class Ui_MainWindow(object):
         self.pushButton_7.setGeometry(QRect(90, 110, 75, 24))
         self.groupBox_8 = QGroupBox(self.centralwidget)
         self.groupBox_8.setObjectName(u"groupBox_8")
-        self.groupBox_8.setGeometry(QRect(950, 0, 331, 211))
+        self.groupBox_8.setGeometry(QRect(550, 410, 411, 211))
         self.plainTextEdit_2 = QPlainTextEdit(self.groupBox_8)
         self.plainTextEdit_2.setObjectName(u"plainTextEdit_2")
-        self.plainTextEdit_2.setGeometry(QRect(10, 20, 311, 181))
+        self.plainTextEdit_2.setGeometry(QRect(10, 20, 391, 181))
         self.groupBox_6 = QGroupBox(self.centralwidget)
         self.groupBox_6.setObjectName(u"groupBox_6")
-        self.groupBox_6.setGeometry(QRect(960, 210, 321, 201))
+        self.groupBox_6.setGeometry(QRect(590, 0, 371, 211))
         self.groupBox_9 = QGroupBox(self.groupBox_6)
         self.groupBox_9.setObjectName(u"groupBox_9")
-        self.groupBox_9.setGeometry(QRect(20, 30, 111, 151))
+        self.groupBox_9.setGeometry(QRect(20, 30, 131, 171))
         self.comboBox_2 = QComboBox(self.groupBox_9)
         self.comboBox_2.addItem("1", ["satu", "tutup"])
         self.comboBox_2.addItem("2", ["dua", "tutup"])
@@ -251,10 +250,14 @@ class Ui_MainWindow(object):
         self.comboBox_4.addItem("6", ["enam", "buka"])
         self.comboBox_4.addItem("7", ["tujuh", "buka"])
         self.comboBox_4.setObjectName(u"comboBox_4")
+        self.comboBox_4.setObjectName(u"comboBox_4")
         self.comboBox_4.setGeometry(QRect(20, 110, 71, 22))
+        self.checkBox_2 = QCheckBox(self.groupBox_9)
+        self.checkBox_2.setObjectName(u"checkBox_2")
+        self.checkBox_2.setGeometry(QRect(20, 140, 101, 20))
         self.groupBox_10 = QGroupBox(self.groupBox_6)
         self.groupBox_10.setObjectName(u"groupBox_10")
-        self.groupBox_10.setGeometry(QRect(190, 30, 111, 151))
+        self.groupBox_10.setGeometry(QRect(240, 30, 111, 171))
         self.pushButton_8 = QPushButton(self.groupBox_10)
         self.pushButton_8.setObjectName(u"pushButton_8")
         self.pushButton_8.setGeometry(QRect(20, 40, 75, 24))
@@ -267,25 +270,18 @@ class Ui_MainWindow(object):
         self.label_19 = QLabel(self.groupBox_10)
         self.label_19.setObjectName(u"label_19")
         self.label_19.setGeometry(QRect(20, 90, 71, 16))
-        self.checkBox_2 = QCheckBox(self.groupBox_6)
-        self.checkBox_2.setObjectName(u"checkBox_2")
-        self.checkBox_2.setGeometry(QRect(150, 70, 16, 20))
-        self.label_16 = QLabel(self.groupBox_6)
-        self.label_16.setObjectName(u"label_16")
-        self.label_16.setGeometry(QRect(140, 90, 41, 41))
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QMenuBar(MainWindow)
+        self.mainWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QMenuBar(self.mainWindow)
         self.menubar.setObjectName(u"menubar")
         self.menubar.setGeometry(QRect(0, 0, 616, 22))
         self.menuFile = QMenu(self.menubar)
         self.menuFile.setObjectName(u"menuFile")
         self.menuBantuan = QMenu(self.menubar)
         self.menuBantuan.setObjectName(u"menuBantuan")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QStatusBar(MainWindow)
+        self.mainWindow.setMenuBar(self.menubar)
+        self.statusbar = QStatusBar(self.mainWindow)
         self.statusbar.setObjectName(u"statusbar")
-        MainWindow.setStatusBar(self.statusbar)
-
+        self.mainWindow.setStatusBar(self.statusbar)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuBantuan.menuAction())
         self.menuFile.addAction(self.actionKeluar)
@@ -294,93 +290,91 @@ class Ui_MainWindow(object):
 
         self.msgBox = QMessageBox()
 
-        self.retranslateUi(MainWindow)
-        self.configureWidget(MainWindow)
+        self.retranslateUi()
+        self.configureWidget()
 
-        QMetaObject.connectSlotsByName(MainWindow)
+        QMetaObject.connectSlotsByName(self.mainWindow)
 
-    def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Robotic Arm LQR App", None))
-        self.actionTentang.setText(QCoreApplication.translate("MainWindow", u"Manual", None))
-        self.actionTentang_2.setText(QCoreApplication.translate("MainWindow", u"Tentang", None))
-        self.actionKeluar.setText(QCoreApplication.translate("MainWindow", u"Keluar", None))
-        self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Manajemen COM", None))
-        self.pushButton.setText(QCoreApplication.translate("MainWindow", u"Refresh", None))
-        self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"Connect", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"Port tersedia:", None))
-        self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"manajemen koneksi", None))
-        self.label_2.setText(QCoreApplication.translate("MainWindow", u"Status Sinkron", None))
-        self.pushButton_3.setText(QCoreApplication.translate("MainWindow", u"mulai", None))
-        self.pushButton_4.setText(QCoreApplication.translate("MainWindow", u"berhenti", None))
-        self.label_3.setText(QCoreApplication.translate("MainWindow", u"sukses", None))
-        self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Trajektori Robot", None))
-        self.label_4.setText(QCoreApplication.translate("MainWindow", u"1", None))
-        self.label_6.setText(QCoreApplication.translate("MainWindow", u"2", None))
-        self.label_7.setText(QCoreApplication.translate("MainWindow", u"3", None))
-        self.label_8.setText(QCoreApplication.translate("MainWindow", u"4", None))
-        self.label_9.setText(QCoreApplication.translate("MainWindow", u"5", None))
-        self.label_10.setText(QCoreApplication.translate("MainWindow", u"X", None))
-        self.label_11.setText(QCoreApplication.translate("MainWindow", u"Y", None))
-        self.label_12.setText(QCoreApplication.translate("MainWindow", u"Z", None))
-        self.groupBox_3.setTitle(QCoreApplication.translate("MainWindow", u"Matriks K (Gain)", None))
-        self.checkBox.setText(QCoreApplication.translate("MainWindow", u"Z Value Toogle", None))
-        self.label_13.setText(QCoreApplication.translate("MainWindow", u"6", None))
-        self.label_14.setText(QCoreApplication.translate("MainWindow", u"7", None))
-        self.labelMatrix_1.setText(QCoreApplication.translate("MainWindow", u"1", None))
-        self.labelMatrix_2.setText(QCoreApplication.translate("MainWindow", u"2", None))
-        self.labelMatrix_3.setText(QCoreApplication.translate("MainWindow", u"3", None))
-        self.pushButton_5.setText(QCoreApplication.translate("MainWindow", u"Send", None))
-        self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
-        self.menuBantuan.setTitle(QCoreApplication.translate("MainWindow", u"Bantuan", None))
-        self.groupBox_7.setTitle(QCoreApplication.translate("MainWindow", u"Log Torsi", None))
-        self.groupBox_5.setTitle(QCoreApplication.translate("MainWindow", u"Manajemen Data", None))
-        self.pushButton_6.setText(QCoreApplication.translate("MainWindow", u"Simpan", None))
-        self.pushButton_7.setText(QCoreApplication.translate("MainWindow", u"Buka", None))
-        self.groupBox_8.setTitle(QCoreApplication.translate("MainWindow", u"Log Trajektori", None))
-        self.groupBox_6.setTitle(QCoreApplication.translate("MainWindow", u"Konfigurasi Lain", None))
-        self.groupBox_9.setTitle(QCoreApplication.translate("MainWindow", u"Servo Gripper", None))
-        self.comboBox_2.setItemText(0, QCoreApplication.translate("MainWindow", u"Iterasi 1", None))
-        self.comboBox_2.setItemText(1, QCoreApplication.translate("MainWindow", u"Iterasi 2", None))
-        self.comboBox_2.setItemText(2, QCoreApplication.translate("MainWindow", u"Iterasi 3", None))
-        self.comboBox_2.setItemText(3, QCoreApplication.translate("MainWindow", u"Iterasi 4", None))
-        self.comboBox_2.setItemText(4, QCoreApplication.translate("MainWindow", u"Iterasi 5", None))
-        self.comboBox_2.setItemText(5, QCoreApplication.translate("MainWindow", u"Iterasi 6", None))
-        self.comboBox_2.setItemText(6, QCoreApplication.translate("MainWindow", u"Iterasi 7", None))
-        self.label_5.setText(QCoreApplication.translate("MainWindow", u"Buka", None))
-        self.label_15.setText(QCoreApplication.translate("MainWindow", u"Tutup", None))
-        self.comboBox_4.setItemText(0, QCoreApplication.translate("MainWindow", u"Iterasi 1", None))
-        self.comboBox_4.setItemText(1, QCoreApplication.translate("MainWindow", u"Iterasi 2", None))
-        self.comboBox_4.setItemText(2, QCoreApplication.translate("MainWindow", u"Iterasi 3", None))
-        self.comboBox_4.setItemText(3, QCoreApplication.translate("MainWindow", u"Iterasi 4", None))
-        self.comboBox_4.setItemText(4, QCoreApplication.translate("MainWindow", u"Iterasi 5", None))
-        self.comboBox_4.setItemText(5, QCoreApplication.translate("MainWindow", u"Iterasi 6", None))
-        self.comboBox_4.setItemText(6, QCoreApplication.translate("MainWindow", u"Iterasi 7", None))
+    def retranslateUi(self):
+        self.mainWindow.setWindowTitle(QCoreApplication.translate("self.mainWindow", u"Robotic Arm LQR App", None))
+        self.actionTentang.setText(QCoreApplication.translate("self.mainWindow", u"Manual", None))
+        self.actionTentang_2.setText(QCoreApplication.translate("self.mainWindow", u"Tentang", None))
+        self.actionKeluar.setText(QCoreApplication.translate("self.mainWindow", u"Keluar", None))
+        self.groupBox.setTitle(QCoreApplication.translate("self.mainWindow", u"Manajemen COM", None))
+        self.pushButton.setText(QCoreApplication.translate("self.mainWindow", u"Refresh", None))
+        self.pushButton_2.setText(QCoreApplication.translate("self.mainWindow", u"Connect", None))
+        self.label.setText(QCoreApplication.translate("self.mainWindow", u"Port tersedia:", None))
+        self.groupBox_2.setTitle(QCoreApplication.translate("self.mainWindow", u"manajemen koneksi", None))
+        self.label_2.setText(QCoreApplication.translate("self.mainWindow", u"Status Sinkron", None))
+        self.pushButton_3.setText(QCoreApplication.translate("self.mainWindow", u"mulai", None))
+        self.pushButton_4.setText(QCoreApplication.translate("self.mainWindow", u"berhenti", None))
+        self.label_3.setText(QCoreApplication.translate("self.mainWindow", u"sukses", None))
+        self.groupBox_4.setTitle(QCoreApplication.translate("self.mainWindow", u"Trajektori Robot", None))
+        self.label_4.setText(QCoreApplication.translate("self.mainWindow", u"1", None))
+        self.label_6.setText(QCoreApplication.translate("self.mainWindow", u"2", None))
+        self.label_7.setText(QCoreApplication.translate("self.mainWindow", u"3", None))
+        self.label_8.setText(QCoreApplication.translate("self.mainWindow", u"4", None))
+        self.label_9.setText(QCoreApplication.translate("self.mainWindow", u"5", None))
+        self.label_10.setText(QCoreApplication.translate("self.mainWindow", u"X", None))
+        self.label_11.setText(QCoreApplication.translate("self.mainWindow", u"Y", None))
+        self.label_12.setText(QCoreApplication.translate("self.mainWindow", u"Z", None))
+        self.groupBox_3.setTitle(QCoreApplication.translate("self.mainWindow", u"Matriks K (Gain)", None))
+        self.checkBox.setText(QCoreApplication.translate("self.mainWindow", u"Z Value Toogle", None))
+        self.label_13.setText(QCoreApplication.translate("self.mainWindow", u"6", None))
+        self.label_14.setText(QCoreApplication.translate("self.mainWindow", u"7", None))
+        self.labelMatrix_1.setText(QCoreApplication.translate("self.mainWindow", u"1", None))
+        self.labelMatrix_2.setText(QCoreApplication.translate("self.mainWindow", u"2", None))
+        self.labelMatrix_3.setText(QCoreApplication.translate("self.mainWindow", u"3", None))
+        self.pushButton_5.setText(QCoreApplication.translate("self.mainWindow", u"Send", None))
+        self.menuFile.setTitle(QCoreApplication.translate("self.mainWindow", u"File", None))
+        self.menuBantuan.setTitle(QCoreApplication.translate("self.mainWindow", u"Bantuan", None))
+        self.groupBox_7.setTitle(QCoreApplication.translate("self.mainWindow", u"Log Torsi", None))
+        self.groupBox_5.setTitle(QCoreApplication.translate("self.mainWindow", u"Manajemen Data", None))
+        self.pushButton_6.setText(QCoreApplication.translate("self.mainWindow", u"Simpan", None))
+        self.pushButton_7.setText(QCoreApplication.translate("self.mainWindow", u"Buka", None))
+        self.groupBox_8.setTitle(QCoreApplication.translate("self.mainWindow", u"Log Trajektori", None))
+        self.groupBox_6.setTitle(QCoreApplication.translate("self.mainWindow", u"Konfigurasi Lain", None))
+        self.groupBox_9.setTitle(QCoreApplication.translate("self.mainWindow", u"Servo Gripper", None))
+        self.comboBox_2.setItemText(0, QCoreApplication.translate("self.mainWindow", u"Iterasi 1", None))
+        self.comboBox_2.setItemText(1, QCoreApplication.translate("self.mainWindow", u"Iterasi 2", None))
+        self.comboBox_2.setItemText(2, QCoreApplication.translate("self.mainWindow", u"Iterasi 3", None))
+        self.comboBox_2.setItemText(3, QCoreApplication.translate("self.mainWindow", u"Iterasi 4", None))
+        self.comboBox_2.setItemText(4, QCoreApplication.translate("self.mainWindow", u"Iterasi 5", None))
+        self.comboBox_2.setItemText(5, QCoreApplication.translate("self.mainWindow", u"Iterasi 6", None))
+        self.comboBox_2.setItemText(6, QCoreApplication.translate("self.mainWindow", u"Iterasi 7", None))
+        self.label_5.setText(QCoreApplication.translate("self.mainWindow", u"Buka", None))
+        self.label_15.setText(QCoreApplication.translate("self.mainWindow", u"Tutup", None))
+        self.comboBox_4.setItemText(0, QCoreApplication.translate("self.mainWindow", u"Iterasi 1", None))
+        self.comboBox_4.setItemText(1, QCoreApplication.translate("self.mainWindow", u"Iterasi 2", None))
+        self.comboBox_4.setItemText(2, QCoreApplication.translate("self.mainWindow", u"Iterasi 3", None))
+        self.comboBox_4.setItemText(3, QCoreApplication.translate("self.mainWindow", u"Iterasi 4", None))
+        self.comboBox_4.setItemText(4, QCoreApplication.translate("self.mainWindow", u"Iterasi 5", None))
+        self.comboBox_4.setItemText(5, QCoreApplication.translate("self.mainWindow", u"Iterasi 6", None))
+        self.comboBox_4.setItemText(6, QCoreApplication.translate("self.mainWindow", u"Iterasi 7", None))
+        self.checkBox_2.setText(QCoreApplication.translate("self.mainWindow", u"Tanpa Gripper", None))
+        self.groupBox_10.setTitle(QCoreApplication.translate("self.mainWindow", u"Plotting", None))
+        self.pushButton_8.setText(QCoreApplication.translate("self.mainWindow", u"Plot", None))
+        self.pushButton_9.setText(QCoreApplication.translate("self.mainWindow", u"Plot", None))
+        self.label_18.setText(QCoreApplication.translate("self.mainWindow", u"Log Torsi", None))
+        self.label_19.setText(QCoreApplication.translate("self.mainWindow", u"Log Trajektori", None))
+        self.checkBox_2.setText(QCoreApplication.translate("self.mainWindow", u"Tanpa Gripper", None))
 
-        self.groupBox_10.setTitle(QCoreApplication.translate("MainWindow", u"Plotting", None))
-        self.pushButton_8.setText(QCoreApplication.translate("MainWindow", u"Plot", None))
-        self.pushButton_9.setText(QCoreApplication.translate("MainWindow", u"Plot", None))
-        self.label_18.setText(QCoreApplication.translate("MainWindow", u"Log Torsi", None))
-        self.label_19.setText(QCoreApplication.translate("MainWindow", u"Log Trajektori", None))
-        self.label_16.setText(QCoreApplication.translate("MainWindow",
-                                                         u"<html><head/><body><p align=\"center\">Tanpa<br/>Gripper</p></body></html>",
-                                                         None))
-
-    def configureWidget(self, MainWindow):
+    def configureWidget(self):
         self.actionKeluar.setShortcut("Ctrl+Q")
-        self.actionKeluar.triggered.connect(MainWindow.close)
+        self.actionKeluar.triggered.connect(self.mainWindow.close)
         self.pushButton.clicked.connect(lambda: self.serial.serial_com_list(self))
-        self.pushButton_2.clicked.connect(lambda: self.serial_connect(MainWindow))
-        self.pushButton_3.clicked.connect(lambda: self.trajectory_menu(MainWindow))
+        self.pushButton_2.clicked.connect(lambda: self.serial_connect())
+        self.pushButton_3.clicked.connect(lambda: self.trajectory_menu())
         self.pushButton_4.clicked.connect(lambda: self.test_stream_stop())
-        # self.pushButton_5.clicked.connect(lambda: self.serial.sent_trajectory(self))
         self.pushButton_5.clicked.connect(lambda: self.send_func())
         # self.pushButton_5.clicked.connect(lambda: self.mock_func())
-        self.pushButton_6.clicked.connect(lambda: self.saveFile(MainWindow))
-        self.pushButton_7.clicked.connect(lambda: self.openFile(MainWindow))
+        self.pushButton_6.clicked.connect(lambda: self.saveFile())
+        self.pushButton_7.clicked.connect(lambda: self.openFile())
         self.pushButton_8.clicked.connect(lambda: self.plotWindow("Torsi", self.data_torque))
         self.pushButton_9.clicked.connect(lambda: self.plotWindow("Trajektori", self.data_trajectory_input,
                                                                   self.data_trajectory))
-        # self.pushButton_9.clicked.connect(lambda: self.plotWindow("Trajektori", self.test123, self.test1234))
+        # self.pushButton_9.clicked.connect(lambda: self.plotWindow("Trajektori",
+        # [0.15, 0.15, 0.15, -0.15, -0.15, -0.15, 0], [0.0003, 0.0004, 0.0003, 0.0021, 0.0021, 0.0013, 0.52]))
         self.checkBox.stateChanged.connect(lambda: self.toogle_checkbox())
         self.checkBox_2.stateChanged.connect(lambda: self.toogle_checkbox_2())
         self.groupBox_2.hide()
@@ -393,14 +387,15 @@ class Ui_MainWindow(object):
         self.list_z = [self.z0, self.z1, self.z2, self.z3, self.z4, self.z5, self.z6]
         self.list_gain = [self.inputMatrix_1, self.inputMatrix_2, self.inputMatrix_3]
 
-    def mock_func(self):
-        a = self.comboBox_2.itemData(self.comboBox_2.currentIndex())
-        b = self.comboBox_4.itemData(self.comboBox_4.currentIndex())
-        print(a)
-        print(type(a))
+    # def mock_func(self):
+    #     a = self.comboBox_2.itemData(self.comboBox_2.currentIndex())
+    #     b = self.comboBox_4.itemData(self.comboBox_4.currentIndex())
+    #     print(a)
+    #     print(type(a))
+    #
+    #     print(b)
+    #     print(type(b))
 
-        print(b)
-        print(type(b))
     def check_filled(self):
         self.unfilled1 = False
         self.unfilled2 = False
@@ -458,7 +453,8 @@ class Ui_MainWindow(object):
 
         if len(self.data_trajectory_x) == 7 and len(self.data_trajectory_y) == 7 and len(self.data_trajectory_z) == 7:
             self.data_trajectory = [self.data_trajectory_x, self.data_trajectory_y, self.data_trajectory_z]
-            self.data_trajectory_input = [[float(x.text()) for x in self.list_x], [float(y.text()) for y in self.list_y],
+            self.data_trajectory_input = [[float(x.text()) for x in self.list_x],
+                                          [float(y.text()) for y in self.list_y],
                                           [float(z.text()) for z in self.list_z]]
             print(f"data trajektori servo {self.data_trajectory}")
             print(f"data trajektori input {self.data_trajectory_input}")
@@ -500,41 +496,10 @@ class Ui_MainWindow(object):
                 self.thread.start()
 
             else:
-                self.msgBox.setText(f"Serial is not connected!")
+                self.msgBox.setText(f"COM belum terhubung!")
                 self.msgBox.setWindowTitle("Informasi")
                 self.msgBox.setIcon(self.msgBox.icon().Information)
                 self.msgBox.exec()
-
-    def trajectory_menu(self, MainWindow):
-        self.pushButton_4.setEnabled(True)
-        self.pushButton_3.setEnabled(False)
-        # MainWindow.resize(616, 388)
-        MainWindow.resize(649, 380)
-        self.widget_2.show()
-        self.groupBox_4.show()
-        self.serial.serial_trajectory_start()
-
-    def test_stream_start(self):
-        self.pushButton_4.setEnabled(True)
-        self.pushButton_3.setEnabled(False)
-
-        self.thread = QThread()
-        self.worker = Worker(self, self.serial)
-        self.worker.moveToThread(self.thread)
-
-        self.thread.started.connect(self.worker.run)
-        self.worker.finished.connect(self.worker.deleteLater)
-        self.worker.finished.connect(self.thread.quit)
-        self.worker.finished.connect(self.worker.deleteLater)
-        self.thread.finished.connect(self.thread.deleteLater)
-
-        self.thread.start()
-
-    def test_stream_stop(self):
-        self.pushButton_4.setEnabled(False)
-        self.pushButton_3.setEnabled(True)
-        self.serial.threading = False
-        self.serial.serial_stop()
 
     def toogle_checkbox(self):
         if self.checkBox.isChecked():
@@ -578,13 +543,13 @@ class Ui_MainWindow(object):
             self.comboBox_2.setEnabled(True)
             self.comboBox_4.setEnabled(True)
 
-    def serial_connect(self, MainWindow):
+    def serial_connect(self):
         if self.pushButton_2.text() == "Connect":
             self.serial.serial_connect(self)
             if self.serial.ser.status:
                 self.plainTextEdit.clear()
                 self.plainTextEdit_2.clear()
-                self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"Disconnect", None))
+                self.pushButton_2.setText(QCoreApplication.translate("self.mainWindow", u"Disconnect", None))
                 self.pushButton.setEnabled(False)
                 self.comboBox.setEnabled(False)
                 # message box berhasil
@@ -592,26 +557,11 @@ class Ui_MainWindow(object):
                 self.msgBox.setWindowTitle("Informasi")
                 self.msgBox.setIcon(self.msgBox.icon().Information)
                 self.msgBox.exec()
-                # MainWindow.resize(1125, 448)
-                # MainWindow.resize(960, 522)
-                MainWindow.resize(1290, 522)
+                self.mainWindow.resize(970, 666)
                 self.groupBox.setGeometry(QRect(10, 0, 341, 211))
                 self.pushButton.setGeometry(QRect(230, 90, 75, 31))
                 self.pushButton_2.setGeometry(QRect(130, 110, 71, 31))
                 self.comboBox.setGeometry(QRect(130, 80, 71, 22))
-                # self.groupBox_2.show()
-                # proses threading (QThread)
-                # self.thread = QThread()
-                # self.worker = Worker2(self, self.serial)
-                # self.worker.moveToThread(self.thread)
-                #
-                # self.thread.started.connect(self.worker.run)
-                # self.worker.finished.connect(self.worker.deleteLater)
-                # self.worker.finished.connect(self.thread.quit)
-                # self.worker.finished.connect(self.worker.deleteLater)
-                # self.thread.finished.connect(self.thread.deleteLater)
-                #
-                # self.thread.start()
 
             else:
                 # message box gagal
@@ -621,18 +571,18 @@ class Ui_MainWindow(object):
         else:
             self.serial.serial_close()
             self.plainTextEdit.clear()
-            self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"Connect", None))
+            self.pushButton_2.setText(QCoreApplication.translate("self.mainWindow", u"Connect", None))
             self.pushButton.setEnabled(True)
             self.comboBox.setEnabled(True)
             self.groupBox_2.hide()
-            MainWindow.resize(359, 158)
+            self.mainWindow.resize(359, 158)
             self.groupBox.setGeometry(QRect(10, 0, 341, 111))
             self.pushButton.setGeometry(QRect(260, 30, 75, 31))
             self.pushButton_2.setGeometry(QRect(170, 60, 71, 31))
             self.comboBox.setGeometry(QRect(170, 30, 71, 22))
 
-    def openFile(self, MainWindow):
-        file_name, _ = QFileDialog.getOpenFileName(MainWindow, "Open File", "", "Text Files (*.txt)")
+    def openFile(self):
+        file_name, _ = QFileDialog.getOpenFileName(self.mainWindow, "Open File", "", "Text Files (*.txt)")
 
         if file_name:
             with open(file_name, "r") as f:
@@ -647,10 +597,10 @@ class Ui_MainWindow(object):
                 [gain.setText(' '.join(str(x) for x in value)) for gain, value in
                  zip(self.list_gain, saved_data.get("matrixGain"))]
 
-    def saveFile(self, MainWindow):
+    def saveFile(self):
         check = self.check_filled()
         if check:
-            file_name, _ = QFileDialog.getSaveFileName(MainWindow, "Save File", "", "Text Files (*.txt)")
+            file_name, _ = QFileDialog.getSaveFileName(self.mainWindow, "Save File", "", "Text Files (*.txt)")
             if file_name.endswith(".txt"):
                 save_data = {
                     "matrixGain": [self.inputMatrix_1.text().split(" "), self.inputMatrix_2.text().split(" "),
@@ -679,39 +629,34 @@ class Ui_MainWindow(object):
             window.setupPlot(tipe, data[0])
         window.show()
 
-
 class PlotWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.widget = QtWidgets.QWidget()
         self.setCentralWidget(self.widget)
         layout = QVBoxLayout(self.widget)
-        self.static_canvas_1 = FigureCanvas(Figure(figsize=(5, 5)))
-        layout.addWidget(NavigationToolbar(self.static_canvas_1, self))
-        layout.addWidget(self.static_canvas_1)
+        self.static_canvas = FigureCanvas(Figure(figsize=(5, 5)))
+        layout.addWidget(NavigationToolbar(self.static_canvas, self))
+        layout.addWidget(self.static_canvas)
+        self.ax_1 = self.static_canvas.figure.add_subplot(231)
+        self.ax_2 = self.static_canvas.figure.add_subplot(232)
+        self.ax_3 = self.static_canvas.figure.add_subplot(233)
+        self.resize(1172, 685)
 
-        self.static_canvas_2 = FigureCanvas(Figure(figsize=(5, 5)))
-        layout.addWidget(NavigationToolbar(self.static_canvas_2, self))
-        layout.addWidget(self.static_canvas_2)
-
-        self.static_canvas_3 = FigureCanvas(Figure(figsize=(5, 5)))
-        layout.addWidget(NavigationToolbar(self.static_canvas_3, self))
-        layout.addWidget(self.static_canvas_3)
+    def resizeEvent(self, e: QResizeEvent, a=1):
+        print(e.size().width())
+        print(e.size().height())
 
     def setupPlot(self, tipe, *data):
         x = range(1, 8)
-        static_ax_1 = self.static_canvas_1.figure.subplots()
-        static_ax_2 = self.static_canvas_2.figure.subplots()
-        static_ax_3 = self.static_canvas_3.figure.subplots()
-        static_ax_list = [static_ax_1, static_ax_2, static_ax_3]
+        static_ax_list = [self.ax_1, self.ax_2, self.ax_3]
         print(data)
-        plots = []
         if tipe == "Trajektori":
             for i in range(len(static_ax_list)):
-                # t = np.linspace(0, 10, 501)
-                # static_ax_list[i].plot(t, np.tan(t), ".")
                 static_ax_list[i].plot(x, data[0][i], label='Input')
+                static_ax_list[i].legend()
                 static_ax_list[i].plot(x, data[1][i], label='Calculated')
+                static_ax_list[i].legend()
                 static_ax_list[i].set_xlabel('Iterasi')
                 static_ax_list[i].set_ylabel('Trajektori')
                 if i == 2:
@@ -721,8 +666,6 @@ class PlotWindow(QMainWindow):
 
         else:
             for i in range(len(static_ax_list)):
-                # t = np.linspace(0, 10, 501)
-                # static_ax_list[i].plot(t, np.tan(t), ".")
                 static_ax_list[i].plot(x, data[0][i])
                 static_ax_list[i].set_xlabel('Iterasi')
                 static_ax_list[i].set_ylabel('Torsi')
@@ -730,36 +673,6 @@ class PlotWindow(QMainWindow):
                     static_ax_list[0].set_title('Torsi Servo Base')
                     static_ax_list[1].set_title('Torsi Servo Tengah')
                     static_ax_list[2].set_title('Torsi Servo Atas')
-
-
-
-
-class Worker(QObject):
-    finished = pyqtSignal()
-    progress = pyqtSignal(int)
-
-    def __init__(self, gui, serial):
-        super().__init__()
-        self.serial = serial
-        self.gui = gui
-
-    def run(self):
-        self.serial.sent_trajectory(self, self.gui)
-
-
-class Worker2(QObject):
-    finished = pyqtSignal()
-    progress = pyqtSignal(int)
-
-    def __init__(self, gui, serial):
-        super().__init__()
-        self.serial = serial
-        self.gui = gui
-
-    def run(self):
-        self.serial.serial_sync(self, self.gui)
-        # self.serial.test_sync(self, self.gui)
-
 
 class Worker3(QObject):
     finished = pyqtSignal()
@@ -780,7 +693,7 @@ class Worker3(QObject):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     mainWindow = QMainWindow()
-    windows = Ui_MainWindow(SerialControl())
-    windows.setupUi(mainWindow)
+    windows = Ui_MainWindow(SerialControl(), mainWindow)
+    windows.setupUi()
     mainWindow.show()
     sys.exit(app.exec())

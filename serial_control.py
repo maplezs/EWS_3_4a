@@ -41,25 +41,23 @@ class SerialControl():
             self.ser.is_open
         except:
             self.ser = serial.Serial(gui.comboBox.currentText(), 115200, timeout=0.1)
-            # self.ser = serial.Serial('COM10', 115200, timeout=0.1)
-            time.sleep(1)
-            # self.ser.baudrate = 9600
-            # self.ser.port = gui.comboBox.currentText()
-            # self.ser.timeout = 0.1
+            time.sleep(2)
 
         try:
             if self.ser.is_open:
-                print("Port is already opened")
-                self.ser.status = True
+                print("Port successfully opened")
                 self.open = True
+                sendData = json.dumps(self.sync_check)
+                sendData = sendData + '\n'
+                self.ser.write(sendData.encode())
+                tdata = self.ser.readline()
+                a = tdata.decode()
+                if a == "sync_ok\n":
+                    self.ser.status = True
+
             else:
                 self.ser = serial.Serial(gui.comboBox.currentText(), 115200, timeout=0.1)
-                # self.ser = serial.Serial('COM10', 115200, timeout=0.1)
                 time.sleep(1)
-                # self.ser.baudrate = 9600
-                # self.ser.port = gui.comboBox.currentText()
-                # self.ser.timeout = 0.01
-                # self.ser.open()
                 self.ser.status = True
                 self.open = True
         except:
@@ -186,7 +184,8 @@ class SerialControl():
         rad1 = []
         rad2 = []
         rad3 = []
-        l1 = 0.125
+        # l1 = 0.125
+        l1 = 0.145
         l2 = 0.15
         l3 = 0.18
         a = gui.inputMatrix_1.text()
@@ -225,14 +224,14 @@ class SerialControl():
             finaltheta1 = calcTheta1 * 180 / pi
             finaltheta2 = calcTheta2 * 180 / pi
             finaltheta3 = calcTheta3 * 180 / pi
-            # theta mapped value
-            theta1.append(round(finaltheta1 + 150, 4))
-            theta2.append(round(190 - finaltheta2, 4))
-            theta3.append(round(150 - finaltheta3, 4))
+            # theta mapping
+            theta1.append(round(finaltheta1 + 150, 2))
+            theta2.append(round(190 - finaltheta2, 2))
+            theta3.append(round(150 - finaltheta3, 2))
             # radian
-            rad1.append(calcTheta1)
-            rad2.append(calcTheta2)
-            rad3.append(calcTheta3)
+            rad1.append(round(calcTheta1, 4))
+            rad2.append(round(calcTheta2, 4))
+            rad3.append(round(calcTheta3, 4))
 
         data1 = {
             "finalTheta": {
@@ -292,6 +291,7 @@ class SerialControl():
         self.ser.write(sentData.encode())
         temp = self.ser.readline()
         temp = temp.decode()
+        print(temp)
         if "data 1 ok" in temp:
             pass
         else:
@@ -302,10 +302,44 @@ class SerialControl():
         self.ser.write(sentData.encode())
         temp = self.ser.readline()
         temp = temp.decode()
+        print(temp)
         if "data 2 ok" in temp:
             pass
         else:
             print("not ok 2")
+
+    # def serial_torque_print_test(self, signal):
+    #     self.a = True
+    #     signal.progress1.emit("Iterasi\tWaktu\tTorsi 1\tTorsi 2\tTorsi 3")
+    #     signal.progress2.emit("Iterasi\tWaktu\tX\tY\tZ")
+    #     count = 1
+    #     while self.a:
+    #         tdata = self.ser.readline()
+    #         if tdata:
+    #             dt = datetime.now().strftime("%H:%M:%S")
+    #             data = json.loads(tdata)
+    #             print(data)
+    #             if len(data) == 2:
+    #                 print(f"{count} ---- {data}")
+    #             signal.progress1.emit(f"Iterasi {count}\t{dt}\t{data.get('satu')}\t{data.get('dua')}\t{data.get('tiga')}")
+    #             else:
+    #                 signal.progress1.emit(
+    #                     f"{data.get('satu')} | {data.get('t1')}\t{data.get('dua')} | {data.get('t2')}\t{data.get('tiga')} | {data.get('t3')}")
+    #                 data_torque = [data.get('satu'), data.get('dua'), data.get('tiga')]
+    #                 signal.progress1_data.emit(data_torque)
+    #                 signal.progress2.emit(f"Iterasi {count}\t{dt}\t{data.get('fk1')}\t{data.get('fk2')}\t{data.get('fk3')}")
+    #                 data_trajectory = [data.get('fk1'), data.get('fk2'), data.get('fk3')]
+    #                 signal.progress2_data.emit(data_trajectory)
+    #                 count += 1
+    #                 print(data)
+    #                 if "done" in data:
+    #                     print("data ended")
+    #                     self.a = False
+    #                     signal.progress1.emit("===================================================")
+    #                     signal.progress2.emit("===================================================")
+    #                     signal.finished.emit()
+    #                     del count
+
 
     def serial_torque_print_test(self, signal):
         self.a = True

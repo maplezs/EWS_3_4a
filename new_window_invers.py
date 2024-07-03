@@ -1,7 +1,9 @@
 import json
 import sys
+import yaml
+from math import floor, log10, inf
 from PyQt6.QtCore import (QCoreApplication, QMetaObject, QObject, QRect, pyqtSignal, QThread)
-from PyQt6.QtGui import QAction, QResizeEvent
+from PyQt6.QtGui import QAction, QResizeEvent, QIcon, QPixmap
 from PyQt6.QtWidgets import (QApplication, QComboBox, QGroupBox, QLabel, QFileDialog,
                              QLineEdit, QMainWindow, QMenu, QMenuBar, QCheckBox,
                              QPushButton, QMessageBox, QStatusBar, QWidget, QPlainTextEdit, QVBoxLayout)
@@ -11,6 +13,10 @@ from matplotlib.backends.backend_qtagg import \
 from matplotlib.backends.qt_compat import QtWidgets
 from matplotlib.figure import Figure
 from serial_control import SerialControl
+
+
+def zeros_count(decimal):
+    return inf if decimal == 0 else -floor(log10(abs(decimal))) - 1
 
 
 class Ui_MainWindow():
@@ -34,6 +40,7 @@ class Ui_MainWindow():
         self.mainWindow.setMinimumSize(359, 158)
         self.mainWindow.resize(359, 158)
         self.mainWindow.setMaximumSize(970, 666)
+        self.mainWindow.setWindowIcon(QIcon("logo ews.jpg"))
         self.actionTentang = QAction(self.mainWindow)
         self.actionTentang.setObjectName(u"actionTentang")
         self.actionTentang_2 = QAction(self.mainWindow)
@@ -62,13 +69,14 @@ class Ui_MainWindow():
         self.groupBox_2.setGeometry(QRect(360, 0, 371, 111))
         self.label_2 = QLabel(self.groupBox_2)
         self.label_2.setObjectName(u"label_2")
-        self.label_2.setGeometry(QRect(10, 40, 81, 31))
+        self.label_2.setGeometry(QRect(410, 460, 131, 131))
         self.pushButton_3 = QPushButton(self.groupBox_2)
         self.pushButton_3.setObjectName(u"pushButton_3")
         self.pushButton_3.setGeometry(QRect(160, 20, 75, 31))
         self.pushButton_4 = QPushButton(self.groupBox_2)
         self.pushButton_4.setObjectName(u"pushButton_4")
         self.pushButton_4.setGeometry(QRect(160, 60, 75, 31))
+        self.pushButton_4.setStyleSheet("color: red;")
         self.label_3 = QLabel(self.groupBox_2)
         self.label_3.setObjectName(u"label_3")
         self.label_3.setGeometry(QRect(100, 40, 51, 31))
@@ -179,13 +187,13 @@ class Ui_MainWindow():
         self.groupBox_3.setGeometry(QRect(490, 30, 471, 171))
         self.inputMatrix_1 = QLineEdit(self.groupBox_3)
         self.inputMatrix_1.setObjectName(u"inputMatrix_1")
-        self.inputMatrix_1.setGeometry(QRect(40, 40, 371, 22))
+        self.inputMatrix_1.setGeometry(QRect(40, 40, 421, 22))
         self.inputMatrix_2 = QLineEdit(self.groupBox_3)
         self.inputMatrix_2.setObjectName(u"inputMatrix_2")
-        self.inputMatrix_2.setGeometry(QRect(40, 70, 371, 22))
+        self.inputMatrix_2.setGeometry(QRect(40, 70, 421, 22))
         self.inputMatrix_3 = QLineEdit(self.groupBox_3)
         self.inputMatrix_3.setObjectName(u"inputMatrix_3")
-        self.inputMatrix_3.setGeometry(QRect(40, 100, 371, 22))
+        self.inputMatrix_3.setGeometry(QRect(40, 100, 421, 22))
         self.labelMatrix_1 = QLabel(self.groupBox_3)
         self.labelMatrix_1.setObjectName(u"labelMatrix_1")
         self.labelMatrix_1.setGeometry(QRect(20, 40, 16, 16))
@@ -270,6 +278,10 @@ class Ui_MainWindow():
         self.label_19 = QLabel(self.groupBox_10)
         self.label_19.setObjectName(u"label_19")
         self.label_19.setGeometry(QRect(20, 90, 71, 16))
+        self.label_2 = QLabel(self.centralwidget)
+        self.label_2.setObjectName(u"label_2")
+        self.label_2.setGeometry(QRect(410, 440, 141, 151))
+        self.logo = QPixmap("logo100crop.jpg")
         self.mainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self.mainWindow)
         self.menubar.setObjectName(u"menubar")
@@ -296,20 +308,20 @@ class Ui_MainWindow():
         QMetaObject.connectSlotsByName(self.mainWindow)
 
     def retranslateUi(self):
-        self.mainWindow.setWindowTitle(QCoreApplication.translate("self.mainWindow", u"Robotic Arm LQR App", None))
+        self.mainWindow.setWindowTitle(QCoreApplication.translate("self.mainWindow", u"Robot Arm Control App", None))
         self.actionTentang.setText(QCoreApplication.translate("self.mainWindow", u"Manual", None))
         self.actionTentang_2.setText(QCoreApplication.translate("self.mainWindow", u"Tentang", None))
         self.actionKeluar.setText(QCoreApplication.translate("self.mainWindow", u"Keluar", None))
         self.groupBox.setTitle(QCoreApplication.translate("self.mainWindow", u"Manajemen COM", None))
         self.pushButton.setText(QCoreApplication.translate("self.mainWindow", u"Refresh", None))
-        self.pushButton_2.setText(QCoreApplication.translate("self.mainWindow", u"Connect", None))
+        self.pushButton_2.setText(QCoreApplication.translate("self.mainWindow", u"Hubungkan", None))
         self.label.setText(QCoreApplication.translate("self.mainWindow", u"Port tersedia:", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("self.mainWindow", u"manajemen koneksi", None))
         self.label_2.setText(QCoreApplication.translate("self.mainWindow", u"Status Sinkron", None))
         self.pushButton_3.setText(QCoreApplication.translate("self.mainWindow", u"mulai", None))
         self.pushButton_4.setText(QCoreApplication.translate("self.mainWindow", u"berhenti", None))
         self.label_3.setText(QCoreApplication.translate("self.mainWindow", u"sukses", None))
-        self.groupBox_4.setTitle(QCoreApplication.translate("self.mainWindow", u"Trajektori Robot", None))
+        self.groupBox_4.setTitle(QCoreApplication.translate("self.mainWindow", u"Waypoint Trajectory", None))
         self.label_4.setText(QCoreApplication.translate("self.mainWindow", u"1", None))
         self.label_6.setText(QCoreApplication.translate("self.mainWindow", u"2", None))
         self.label_7.setText(QCoreApplication.translate("self.mainWindow", u"3", None))
@@ -358,6 +370,7 @@ class Ui_MainWindow():
         self.label_18.setText(QCoreApplication.translate("self.mainWindow", u"Log Torsi", None))
         self.label_19.setText(QCoreApplication.translate("self.mainWindow", u"Log Trajektori", None))
         self.checkBox_2.setText(QCoreApplication.translate("self.mainWindow", u"Tanpa Gripper", None))
+        self.label_2.setPixmap(self.logo)
 
     def configureWidget(self):
         self.actionKeluar.setShortcut("Ctrl+Q")
@@ -387,6 +400,8 @@ class Ui_MainWindow():
         self.list_z = [self.z0, self.z1, self.z2, self.z3, self.z4, self.z5, self.z6]
         self.list_gain = [self.inputMatrix_1, self.inputMatrix_2, self.inputMatrix_3]
 
+        self.checkBox.hide()
+
     # def mock_func(self):
     #     a = self.comboBox_2.itemData(self.comboBox_2.currentIndex())
     #     b = self.comboBox_4.itemData(self.comboBox_4.currentIndex())
@@ -396,6 +411,22 @@ class Ui_MainWindow():
     #     print(b)
     #     print(type(b))
 
+    def check_gripper(self):
+        if not self.checkBox_2.isChecked():
+            if self.comboBox_2.currentText() == self.comboBox_4.currentText():
+                self.msgBox.setText(f"Aksi buka tutup gripper tidak boleh pada iterasi yang sama!")
+                self.msgBox.setWindowTitle("Informasi")
+                self.msgBox.setIcon(self.msgBox.icon().Information)
+                self.msgBox.exec()
+                return False
+            else:
+                return True
+        else:
+            return True
+        # if self.checkBox_2.isChecked():
+        #     return False
+        # else:
+        #     return self.comboBox_2.currentIndex(), self.comboBox_4.currentIndex()
     def check_filled(self):
         self.unfilled1 = False
         self.unfilled2 = False
@@ -467,7 +498,7 @@ class Ui_MainWindow():
                 self.msgBox.setWindowTitle("Informasi")
                 self.msgBox.setIcon(self.msgBox.icon().Information)
                 self.msgBox.exec()
-        if check:
+        if check and self.checkBox_2.isChecked():
             if self.serial.open:
                 self.plainTextEdit.clear()
                 self.plainTextEdit_2.clear()
@@ -544,12 +575,12 @@ class Ui_MainWindow():
             self.comboBox_4.setEnabled(True)
 
     def serial_connect(self):
-        if self.pushButton_2.text() == "Connect":
+        if self.pushButton_2.text() == "Hubungkan":
             self.serial.serial_connect(self)
             if self.serial.ser.status:
                 self.plainTextEdit.clear()
                 self.plainTextEdit_2.clear()
-                self.pushButton_2.setText(QCoreApplication.translate("self.mainWindow", u"Disconnect", None))
+                self.pushButton_2.setText(QCoreApplication.translate("self.mainWindow", u"Putuskan", None))
                 self.pushButton.setEnabled(False)
                 self.comboBox.setEnabled(False)
                 # message box berhasil
@@ -571,7 +602,7 @@ class Ui_MainWindow():
         else:
             self.serial.serial_close()
             self.plainTextEdit.clear()
-            self.pushButton_2.setText(QCoreApplication.translate("self.mainWindow", u"Connect", None))
+            self.pushButton_2.setText(QCoreApplication.translate("self.mainWindow", u"Hubungkan", None))
             self.pushButton.setEnabled(True)
             self.comboBox.setEnabled(True)
             self.groupBox_2.hide()
@@ -588,18 +619,50 @@ class Ui_MainWindow():
             with open(file_name, "r") as f:
                 saved_data = f.read()
                 saved_data = json.loads(saved_data)
-                [x.setText(str(format(float(value), '.5f'))) for x, value in
-                 zip(self.list_x, saved_data.get("trajectory").get("x"))]
-                [y.setText(str(format(float(value), '.5f'))) for y, value in
-                 zip(self.list_y, saved_data.get("trajectory").get("y"))]
-                [z.setText(str(format(float(value), '.5f'))) for z, value in
-                 zip(self.list_z, saved_data.get("trajectory").get("z"))]
+                ## test
+                for x, value in zip(self.list_x, saved_data.get("trajectory").get("x")):
+                    precision = zeros_count(value)
+                    if precision > 0 and precision is not inf:
+                        x.setText(format(value, f'.{precision+1}f'))
+                    else:
+                        x.setText(str(value))
+
+                for y, value in zip(self.list_y, saved_data.get("trajectory").get("y")):
+                    precision = zeros_count(value)
+                    if precision > 0 and precision is not inf:
+                        y.setText(format(value, f'.{precision+1}f'))
+                    else:
+                        y.setText(str(value))
+                #
+                for z, value in zip(self.list_z, saved_data.get("trajectory").get("z")):
+                    precision = zeros_count(value)
+                    if precision > 0 and precision is not inf:
+                        z.setText(format(value, f'.{precision+1}f'))
+                    else:
+                        z.setText(str(value))
+
                 [gain.setText(' '.join(str(x) for x in value)) for gain, value in
                  zip(self.list_gain, saved_data.get("matrixGain"))]
 
+                if not saved_data.get('gripper'):
+                    self.comboBox_2.setCurrentIndex(0)
+                    self.comboBox_4.setCurrentIndex(0)
+                    self.checkBox_2.setChecked(False)
+
+                if saved_data.get('gripper') == "nan":
+                    self.checkBox_2.setChecked(True)
+                    return
+
+                if saved_data.get('gripper'):
+                    self.checkBox_2.setChecked(False)
+                    self.comboBox_2.setCurrentIndex(saved_data.get('gripper').get('tutup'))
+                    self.comboBox_4.setCurrentIndex(saved_data.get('gripper').get('buka'))
+
     def saveFile(self):
-        check = self.check_filled()
-        if check:
+        check_data = self.check_filled()
+        check_gripper = self.check_gripper()
+        print(check_gripper)
+        if check_data and check_gripper:
             file_name, _ = QFileDialog.getSaveFileName(self.mainWindow, "Save File", "", "Text Files (*.txt)")
             if file_name.endswith(".txt"):
                 save_data = {
@@ -611,13 +674,19 @@ class Ui_MainWindow():
                         "z": [float(z.text()) for z in self.list_z]
                     }
                 }
+                if self.checkBox_2.isChecked():
+                    save_data.update({"gripper": "nan"})
+                else:
+                    save_data.update({'gripper': {'buka': self.comboBox_2.currentIndex(),
+                                                  'tutup': self.comboBox_4.currentIndex()}})
                 with open(file_name, "w") as f:
-                    f.write(json.dumps(save_data))
+                    # f.write(json.dumps(save_data))
+                    f.write(yaml.dump(save_data))
             else:
-                self.msgBox.setText("Text not saved.")
-                self.msgBox.setWindowTitle("Not Saved")
+                self.msgBox.setText("Data Tidak Tersimpan")
                 self.msgBox.setIcon(self.msgBox.icon().Information)
                 self.msgBox.exec()
+                return
 
     def plotWindow(self, tipe, *data):
         window = PlotWindow()

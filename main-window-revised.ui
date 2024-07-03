@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>970</width>
-    <height>666</height>
+    <height>667</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -468,7 +468,7 @@
        <rect>
         <x>40</x>
         <y>40</y>
-        <width>371</width>
+        <width>421</width>
         <height>22</height>
        </rect>
       </property>
@@ -478,7 +478,7 @@
        <rect>
         <x>40</x>
         <y>70</y>
-        <width>371</width>
+        <width>421</width>
         <height>22</height>
        </rect>
       </property>
@@ -488,7 +488,7 @@
        <rect>
         <x>40</x>
         <y>100</y>
-        <width>371</width>
+        <width>421</width>
         <height>22</height>
        </rect>
       </property>
@@ -851,6 +851,19 @@
       </property>
      </widget>
     </widget>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>460</y>
+      <width>131</width>
+      <height>131</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Image here</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

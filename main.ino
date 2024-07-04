@@ -82,9 +82,9 @@ float* calcTorque(float current1, float current2, float current3, float target1,
   current2 *= DEG_TO_RAD;
   current3 *= DEG_TO_RAD;
 
-  float torsi1 = (-gain1[0] * target1) + (-gain1[1] * target2) + (-gain1[2] * target3) - (gain1[3] + gain1[4] + gain1[5]) * (target1 - current1);
-  float torsi2 = (-gain2[0] * target1) + (-gain2[1] * target2) + (-gain2[2] * target3) - (gain2[3] + gain2[4] + gain2[5]) * (target2 - current2);
-  float torsi3 = (-gain3[0] * target1) + (-gain3[1] * target2) + (-gain3[2] * target3) - (gain3[3] + gain3[4] + gain3[5]) * (target3 - current3);
+  float torsi1 = (-gain1[0] * target1) + (-gain1[1] * target2) + (-gain1[2] * target3) + (-gain1[3] * (target1 - current1)) + (-gain1[4] * (target2 - current2)) + (-gain1[5] * (target3 - current3));
+  float torsi2 = (-gain2[0] * target1) + (-gain2[1] * target2) + (-gain2[2] * target3) + (-gain2[3] * (target1 - current1)) + (-gain2[4] * (target2 - current2)) + (-gain2[5] * (target3 - current3));
+  float torsi3 = (-gain3[0] * target1) + (-gain3[1] * target2) + (-gain3[2] * target3) + (-gain3[3] * (target1 - current1)) + (-gain3[4] * (target2 - current2)) + (-gain3[5] * (target3 - current3));
   
   result[0] = ceil(abs(torsi1 * (1023 / 1.5)));
   result[1] = abs(torsi1);

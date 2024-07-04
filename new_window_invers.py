@@ -39,7 +39,7 @@ class Ui_MainWindow():
             self.mainWindow.setObjectName(u"self.mainWindow")
         self.mainWindow.setMinimumSize(359, 158)
         self.mainWindow.resize(359, 158)
-        self.mainWindow.setMaximumSize(970, 666)
+        self.mainWindow.setMaximumSize(359, 158)
         self.mainWindow.setWindowIcon(QIcon("icon-app.png"))
         self.actionTentang = QAction(self.mainWindow)
         self.actionTentang.setObjectName(u"actionTentang")
@@ -404,6 +404,13 @@ class Ui_MainWindow():
         self.pushButton_8.setEnabled(False)
         self.pushButton_9.setEnabled(False)
 
+        self.groupBox_3.hide()
+        self.groupBox_4.hide()
+        self.groupBox_5.hide()
+        self.groupBox_6.hide()
+        self.groupBox_7.hide()
+        self.groupBox_8.hide()
+
         self.checkBox.hide()
 
     # def mock_func(self):
@@ -596,11 +603,19 @@ class Ui_MainWindow():
                 self.msgBox.setWindowTitle("Informasi")
                 self.msgBox.setIcon(self.msgBox.icon().Information)
                 self.msgBox.exec()
+                self.mainWindow.setMaximumSize(970, 666)
                 self.mainWindow.resize(970, 666)
                 self.groupBox.setGeometry(QRect(10, 0, 341, 211))
                 self.pushButton.setGeometry(QRect(230, 90, 75, 31))
                 self.pushButton_2.setGeometry(QRect(130, 110, 71, 31))
                 self.comboBox.setGeometry(QRect(130, 80, 71, 22))
+
+                self.groupBox_3.show()
+                self.groupBox_4.show()
+                self.groupBox_5.show()
+                self.groupBox_6.show()
+                self.groupBox_7.show()
+                self.groupBox_8.show()
 
             else:
                 # message box gagal
@@ -615,6 +630,7 @@ class Ui_MainWindow():
             self.comboBox.setEnabled(True)
             self.groupBox_2.hide()
             self.mainWindow.resize(359, 158)
+            self.mainWindow.setMaximumSize(359, 158)
             self.groupBox.setGeometry(QRect(10, 0, 341, 111))
             self.pushButton.setGeometry(QRect(260, 30, 75, 31))
             self.pushButton_2.setGeometry(QRect(170, 60, 71, 31))

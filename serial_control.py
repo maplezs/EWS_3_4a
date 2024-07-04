@@ -1,34 +1,20 @@
 import serial.tools.list_ports
-import numpy as np
 import time
 import json
 from math import atan, acos, sqrt, pow, pi
 from datetime import datetime
+from pprint import pprint
 
 
-class SerialControl():
+class SerialControl:
     def __init__(self):
-        self.data = 0
         self.open = False
         self.msg = []
         self.coms = []
-        self.sync_try_count = 10
-        self.SynchChannel = 0
         self.sync_check = {
             "sync": "check"
         }
         self.sync_ok = "sync_ok"
-        self.stream_start = {
-            "start": "ok"
-        }
-        self.trajectory_start = {
-            "start": "ok"
-        }
-        self.stream_stop = {
-            "stop": "ok"
-        }
-        self.XAxisData = []
-        self.YAxisData = []
 
     def serial_com_list(self, gui):
         ports = serial.tools.list_ports.comports()
@@ -74,109 +60,6 @@ class SerialControl():
             self.ser.status = False
             self.open = False
 
-    def set_ref_time(self):
-        if len(self.XAxisData) == 0:
-            self.ref_time = time.perf_counter()
-        else:
-            self.ref_time = time.perf_counter() - self.XAxisData[len(self.XAxisData) - 1]
-
-    def Xdata_stream(self):
-        if len(self.XAxisData) == 0:
-            self.XAxisData.append(0)
-        else:
-            self.XAxisData.append(time.perf_counter() - self.ref_time)
-
-    def Ydata_stream(self):
-        # self.YAxisData[0].append(self.msg[0])
-        for ChNumber in range(self.SynchChannel):
-            self.YAxisData[ChNumber].append(self.IntMsg[ChNumber])
-
-    def adjust_data(self):
-        lenXdata = len(self.XAxisData)
-        if (self.XAxisData[lenXdata - 1] - self.XAxisData[0]) > 5:
-            del self.XAxisData[0]
-            for ydata in self.YAxisData:
-                del ydata[0]
-
-        x = np.array(self.XAxisData)
-        self.XDisplay = np.linspace(x.min(), x.max(), len(x), endpoint=False)
-        self.YDisplay = np.array(self.YAxisData)
-
-    def test_serial_sync(self, signal):
-        sentData = json.dumps(self.sync_check)
-        sentData = sentData + '\n'
-        self.threading = True
-        count = 0
-        while self.threading:
-            try:
-                self.ser.write(sentData.encode())
-                self.RowMsg = self.ser.readline()
-                self.decode_message()
-                if self.sync_ok in self.msg:
-                    self.SynchChannel = int(self.msg[1])
-                    self.GenChannels()
-                    self.buildYdata()
-                    print(self.Channels, self.YAxisData)
-                    self.threading = False
-                    signal.finished.emit()
-                    break
-                if self.threading == False:
-                    signal.finished.emit()
-                    break
-            except Exception as e:
-                print(e)
-            count += 1
-            if self.threading == False:
-                signal.finished.emit()
-                break
-            if count > self.sync_try_count:
-                count = 0
-                time.sleep(0.5)
-                if self.threading == False:
-                    signal.finished.emit()
-                    break
-
-    def serial_sync(self, signal, gui):
-        sentData = json.dumps(self.sync_check)
-        sentData = sentData + '\n'
-        self.threading = True
-        count = 0
-        while self.threading:
-            try:
-                self.ser.write(sentData.encode())
-                gui.label_3.setText("..Syncing..")
-                gui.label_3.setStyleSheet("color: rgb(251, 84, 43)")
-                self.RowMsg = self.ser.readline()
-                self.decode_message()
-                if self.sync_ok in self.msg:
-                    gui.label_3.setText("OK")
-                    gui.label_3.setStyleSheet("color: rgb(30, 215, 96)")
-                    gui.pushButton_4.setEnabled(False)
-                    # self.SynchChannel = int(self.msg[1])
-                    # self.GenChannels()
-                    # self.buildYdata()
-                    # print(self.Channels, self.YAxisData)
-                    self.threading = False
-                    signal.finished.emit()
-                    break
-                if self.threading == False:
-                    signal.finished.emit()
-                    break
-            except Exception as e:
-                print(e)
-            count += 1
-            if self.threading == False:
-                signal.finished.emit()
-                break
-            if count > self.sync_try_count:
-                count = 0
-                gui.label_3.setText("Failed")
-                gui.label_3.setStyleSheet("color: rgb(192, 83, 79)")
-                time.sleep(0.5)
-                if self.threading == False:
-                    signal.finished.emit()
-                    break
-
     def sent_trajectory_gain(self, gui, action):
         theta1 = []
         theta2 = []
@@ -184,7 +67,6 @@ class SerialControl():
         rad1 = []
         rad2 = []
         rad3 = []
-        # l1 = 0.125
         l1 = 0.145
         l2 = 0.15
         l3 = 0.18
@@ -284,8 +166,11 @@ class SerialControl():
                 "rad3": rad3
             }
         }
+        print(data1)
+        print(data2)
         if not gui.checkBox_2.isChecked():
             data2.update({'gripper': {action[0]: action[1], action[2]: action[3]}})
+            pprint(data2, sort_dicts=False, indent=4, width=100)
         sentData = json.dumps(data1)
         sentData = sentData + '\n'
         self.ser.write(sentData.encode())
@@ -308,40 +193,7 @@ class SerialControl():
         else:
             print("not ok 2")
 
-    # def serial_torque_print_test(self, signal):
-    #     self.a = True
-    #     signal.progress1.emit("Iterasi\tWaktu\tTorsi 1\tTorsi 2\tTorsi 3")
-    #     signal.progress2.emit("Iterasi\tWaktu\tX\tY\tZ")
-    #     count = 1
-    #     while self.a:
-    #         tdata = self.ser.readline()
-    #         if tdata:
-    #             dt = datetime.now().strftime("%H:%M:%S")
-    #             data = json.loads(tdata)
-    #             print(data)
-    #             if len(data) == 2:
-    #                 print(f"{count} ---- {data}")
-    #             signal.progress1.emit(f"Iterasi {count}\t{dt}\t{data.get('satu')}\t{data.get('dua')}\t{data.get('tiga')}")
-    #             else:
-    #                 signal.progress1.emit(
-    #                     f"{data.get('satu')} | {data.get('t1')}\t{data.get('dua')} | {data.get('t2')}\t{data.get('tiga')} | {data.get('t3')}")
-    #                 data_torque = [data.get('satu'), data.get('dua'), data.get('tiga')]
-    #                 signal.progress1_data.emit(data_torque)
-    #                 signal.progress2.emit(f"Iterasi {count}\t{dt}\t{data.get('fk1')}\t{data.get('fk2')}\t{data.get('fk3')}")
-    #                 data_trajectory = [data.get('fk1'), data.get('fk2'), data.get('fk3')]
-    #                 signal.progress2_data.emit(data_trajectory)
-    #                 count += 1
-    #                 print(data)
-    #                 if "done" in data:
-    #                     print("data ended")
-    #                     self.a = False
-    #                     signal.progress1.emit("===================================================")
-    #                     signal.progress2.emit("===================================================")
-    #                     signal.finished.emit()
-    #                     del count
-
-
-    def serial_torque_print_test(self, signal):
+    def serial_log_print(self, signal):
         self.a = True
         signal.progress1.emit("Iterasi\tWaktu\tTorsi 1\tTorsi 2\tTorsi 3")
         signal.progress2.emit("Iterasi\tWaktu\tX\tY\tZ")
@@ -351,123 +203,17 @@ class SerialControl():
             if tdata:
                 dt = datetime.now().strftime("%H:%M:%S")
                 data = json.loads(tdata)
-                signal.progress1.emit(f"Iterasi {count}\t{dt}\t{data.get('satu')}\t{data.get('dua')}\t{data.get('tiga')}")
+                signal.progress1.emit(f"{count}\t{dt}\t{data.get('satu')}\t{data.get('dua')}\t{data.get('tiga')}")
                 data_torque = [data.get('satu'), data.get('dua'), data.get('tiga')]
                 signal.progress1_data.emit(data_torque)
-                signal.progress2.emit(f"Iterasi {count}\t{dt}\t{data.get('fk1')}\t{data.get('fk2')}\t{data.get('fk3')}")
+                signal.progress2.emit(f"{count}\t{dt}\t{data.get('fk1')}\t{data.get('fk2')}\t{data.get('fk3')}")
                 data_trajectory = [data.get('fk1'), data.get('fk2'), data.get('fk3')]
                 signal.progress2_data.emit(data_trajectory)
                 count += 1
                 if "done" in data:
                     print("data ended")
                     self.a = False
-                    signal.progress1.emit("===================================================")
-                    signal.progress2.emit("===================================================")
+                    signal.progress1.emit("=============================================")
+                    signal.progress2.emit("=============================================")
                     signal.finished.emit()
                     del count
-
-    def serial_trajectory_start(self):
-        sentData = json.dumps(self.trajectory_start)
-        sentData = sentData + '\n'
-        self.ser.write(sentData.encode())
-        temp = self.ser.readline()
-        temp = temp.decode('utf8')
-        print(temp)
-        if "ok1" in temp:
-            pass
-        else:
-            print("not ok")
-        self.ser.write(sentData.encode())
-        temp = self.ser.readline()
-        temp = temp.decode('utf8')
-        temp = json.loads(temp)
-        if "ok2" in temp:
-            pass
-        else:
-            print("not ok")
-
-    def reset_data(self):
-        self.YAxisData = []
-        self.msg = []
-
-    def decode_message(self):
-        temp = self.RowMsg.decode()
-        if len(temp) > 0:
-            if "#" in temp:
-                self.msg = temp.split("#")
-                del self.msg[0]
-                print(self.msg)
-                if self.msg[0] in "D":
-                    self.messageLen = 0
-                    self.messageLenCheck = 0
-                    del self.msg[0]
-                    del self.msg[len(self.msg) - 1]
-                    self.messageLen = int(self.msg[len(self.msg) - 1])
-                    del self.msg[len(self.msg) - 1]
-                    for item in self.msg:
-                        self.messageLenCheck += len(item)
-
-    def IntMsgFunc(self):
-        self.IntMsg = [int(msg) for msg in self.msg]
-
-    def StreamDataCheck(self):
-        self.StreamData = False
-        if self.SynchChannel == len(self.msg):
-            if self.messageLen == self.messageLenCheck:
-                self.StreamData = True
-                self.IntMsgFunc()
-
-    def GenChannels(self):
-        self.Channels = [f"Ch{ch}" for ch in range(self.SynchChannel)]
-
-    def buildYdata(self):
-        self.YAxisData = []
-        for _ in range(self.SynchChannel):
-            self.YAxisData.append([])
-
-    def ClearData(self):
-        self.RowMsg = ""
-        self.msg = []
-        self.YAxisData = []
-        self.YAxisData = []
-
-    def serial_stop(self):
-        sentData = json.dumps(self.stream_stop)
-        sentData = sentData + '\n'
-        self.ser.write(sentData.encode())
-
-    def serial_stream(self, signal, gui):
-        self.threading = True
-        sentData = json.dumps(self.stream_start)
-        sentData = sentData + '\n'
-        while self.threading:
-            try:
-                self.ser.write(sentData.encode())
-                self.RowMsg = self.ser.readline()
-                self.decode_message()
-                # print(f"{self.messageLen}, {self.messageLenCheck}")
-                self.StreamDataCheck()
-                if self.StreamData:
-                    self.set_ref_time()
-                    break
-            except Exception as e:
-                print(e)
-        # gui.up_chart()
-        while self.threading:
-            try:
-                self.RowMsg = self.ser.readline()
-                self.decode_message()
-                self.StreamDataCheck()
-                if self.StreamData:
-                    self.Xdata_stream()
-                    self.Ydata_stream()
-                    # Yval = [Ys[len(self.XAxisData) - 1] for Ys in self.YAxisData]
-                    self.adjust_data()
-                    # print(f"X Len: {len(self.XAxisData)}, Xstart:{self.XAxisData[0]}  Xend : {self.XAxisData[len(self.XAxisData) - 1]}, Xrange: {self.XAxisData[len(self.XAxisData) - 1] - self.XAxisData[0]} Ydata len: {len(self.YAxisData[0])} Yval: : {Yval} ")
-            except Exception as e:
-                print(e)
-        if not self.threading:
-            signal.finished.emit()
-
-    def x_data(self, gui):
-        gui.chart.plot(gui.x, gui.y, dash_capstyle='projecting', linewidth=1)

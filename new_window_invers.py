@@ -1,6 +1,6 @@
 import json
 import sys
-import yaml
+
 from math import floor, log10, inf
 from PyQt6.QtCore import (QCoreApplication, QMetaObject, QObject, QRect, pyqtSignal, QThread)
 from PyQt6.QtGui import QAction, QResizeEvent, QIcon, QPixmap
@@ -40,7 +40,7 @@ class Ui_MainWindow():
         self.mainWindow.setMinimumSize(359, 158)
         self.mainWindow.resize(359, 158)
         self.mainWindow.setMaximumSize(970, 666)
-        self.mainWindow.setWindowIcon(QIcon("logo ews.jpg"))
+        self.mainWindow.setWindowIcon(QIcon("icon-app.png"))
         self.actionTentang = QAction(self.mainWindow)
         self.actionTentang.setObjectName(u"actionTentang")
         self.actionTentang_2 = QAction(self.mainWindow)
@@ -242,7 +242,7 @@ class Ui_MainWindow():
         self.comboBox_2.addItem("6", ["enam", "tutup"])
         self.comboBox_2.addItem("7", ["tujuh", "tutup"])
         self.comboBox_2.setObjectName(u"comboBox_2")
-        self.comboBox_2.setGeometry(QRect(20, 40, 71, 22))
+        self.comboBox_2.setGeometry(QRect(20, 40, 91, 22))
         self.label_5 = QLabel(self.groupBox_9)
         self.label_5.setObjectName(u"label_5")
         self.label_5.setGeometry(QRect(40, 90, 31, 16))
@@ -259,7 +259,7 @@ class Ui_MainWindow():
         self.comboBox_4.addItem("7", ["tujuh", "buka"])
         self.comboBox_4.setObjectName(u"comboBox_4")
         self.comboBox_4.setObjectName(u"comboBox_4")
-        self.comboBox_4.setGeometry(QRect(20, 110, 71, 22))
+        self.comboBox_4.setGeometry(QRect(20, 110, 91, 22))
         self.checkBox_2 = QCheckBox(self.groupBox_9)
         self.checkBox_2.setObjectName(u"checkBox_2")
         self.checkBox_2.setGeometry(QRect(20, 140, 101, 20))
@@ -337,7 +337,7 @@ class Ui_MainWindow():
         self.labelMatrix_1.setText(QCoreApplication.translate("self.mainWindow", u"1", None))
         self.labelMatrix_2.setText(QCoreApplication.translate("self.mainWindow", u"2", None))
         self.labelMatrix_3.setText(QCoreApplication.translate("self.mainWindow", u"3", None))
-        self.pushButton_5.setText(QCoreApplication.translate("self.mainWindow", u"Send", None))
+        self.pushButton_5.setText(QCoreApplication.translate("self.mainWindow", u"Kirim", None))
         self.menuFile.setTitle(QCoreApplication.translate("self.mainWindow", u"File", None))
         self.menuBantuan.setTitle(QCoreApplication.translate("self.mainWindow", u"Bantuan", None))
         self.groupBox_7.setTitle(QCoreApplication.translate("self.mainWindow", u"Log Torsi", None))
@@ -400,6 +400,10 @@ class Ui_MainWindow():
         self.list_z = [self.z0, self.z1, self.z2, self.z3, self.z4, self.z5, self.z6]
         self.list_gain = [self.inputMatrix_1, self.inputMatrix_2, self.inputMatrix_3]
 
+        # disable plot button on app start
+        self.pushButton_8.setEnabled(False)
+        self.pushButton_9.setEnabled(False)
+
         self.checkBox.hide()
 
     # def mock_func(self):
@@ -427,6 +431,7 @@ class Ui_MainWindow():
         #     return False
         # else:
         #     return self.comboBox_2.currentIndex(), self.comboBox_4.currentIndex()
+
     def check_filled(self):
         self.unfilled1 = False
         self.unfilled2 = False
@@ -454,6 +459,11 @@ class Ui_MainWindow():
             return False
         else:
             return True
+
+    def enable_button_after_finish(self):
+        self.pushButton_5.setEnabled(True)
+        self.pushButton_8.setEnabled(True)
+        self.pushButton_9.setEnabled(True)
 
     def clear_data(self):
         data_torque = [self.data_torque_satu, self.data_torque_dua, self.data_torque_tiga]
@@ -491,14 +501,9 @@ class Ui_MainWindow():
             print(f"data trajektori input {self.data_trajectory_input}")
 
     def send_func(self):
-        check = self.check_filled()
-        if not self.checkBox_2.isChecked():
-            if self.comboBox_2.currentText() == self.comboBox_4.currentText():
-                self.msgBox.setText(f"Aksi buka tutup gripper tidak boleh pada iterasi yang sama!")
-                self.msgBox.setWindowTitle("Informasi")
-                self.msgBox.setIcon(self.msgBox.icon().Information)
-                self.msgBox.exec()
-        if check and self.checkBox_2.isChecked():
+        check_filled = self.check_filled()
+        check_gripper = self.check_gripper()
+        if check_filled and check_gripper:
             if self.serial.open:
                 self.plainTextEdit.clear()
                 self.plainTextEdit_2.clear()
@@ -510,7 +515,9 @@ class Ui_MainWindow():
                                   gripper_action_buka[1]]
 
                 self.serial.sent_trajectory_gain(self, gripper_action)
-
+                self.pushButton_5.setEnabled(False)
+                self.pushButton_8.setEnabled(False)
+                self.pushButton_9.setEnabled(False)
                 self.thread = QThread()
                 self.worker = Worker3(self.serial)
                 self.worker.moveToThread(self.thread)
@@ -518,6 +525,7 @@ class Ui_MainWindow():
                 self.thread.started.connect(self.worker.run)
                 self.worker.finished.connect(self.thread.quit)
                 self.worker.finished.connect(self.worker.deleteLater)
+                self.worker.finished.connect(self.enable_button_after_finish)
                 self.thread.finished.connect(self.thread.deleteLater)
                 self.worker.progress1.connect(self.append_log_torque)
                 self.worker.progress2.connect(self.append_log_trajectory)
@@ -619,44 +627,44 @@ class Ui_MainWindow():
             with open(file_name, "r") as f:
                 saved_data = f.read()
                 saved_data = json.loads(saved_data)
-                ## test
-                for x, value in zip(self.list_x, saved_data.get("trajectory").get("x")):
-                    precision = zeros_count(value)
-                    if precision > 0 and precision is not inf:
-                        x.setText(format(value, f'.{precision+1}f'))
-                    else:
-                        x.setText(str(value))
+                if saved_data:
+                    for x, value in zip(self.list_x, saved_data.get("trajectory").get("x")):
+                        precision = zeros_count(value)
+                        if precision > 0 and precision is not inf:
+                            x.setText(format(value, f'.{precision + 1}f'))
+                        else:
+                            x.setText(str(value))
 
-                for y, value in zip(self.list_y, saved_data.get("trajectory").get("y")):
-                    precision = zeros_count(value)
-                    if precision > 0 and precision is not inf:
-                        y.setText(format(value, f'.{precision+1}f'))
-                    else:
-                        y.setText(str(value))
-                #
-                for z, value in zip(self.list_z, saved_data.get("trajectory").get("z")):
-                    precision = zeros_count(value)
-                    if precision > 0 and precision is not inf:
-                        z.setText(format(value, f'.{precision+1}f'))
-                    else:
-                        z.setText(str(value))
+                    for y, value in zip(self.list_y, saved_data.get("trajectory").get("y")):
+                        precision = zeros_count(value)
+                        if precision > 0 and precision is not inf:
+                            y.setText(format(value, f'.{precision + 1}f'))
+                        else:
+                            y.setText(str(value))
+                    #
+                    for z, value in zip(self.list_z, saved_data.get("trajectory").get("z")):
+                        precision = zeros_count(value)
+                        if precision > 0 and precision is not inf:
+                            z.setText(format(value, f'.{precision + 1}f'))
+                        else:
+                            z.setText(str(value))
 
-                [gain.setText(' '.join(str(x) for x in value)) for gain, value in
-                 zip(self.list_gain, saved_data.get("matrixGain"))]
+                    [gain.setText(' '.join(str(x) for x in value)) for gain, value in
+                     zip(self.list_gain, saved_data.get("matrixGain"))]
 
-                if not saved_data.get('gripper'):
-                    self.comboBox_2.setCurrentIndex(0)
-                    self.comboBox_4.setCurrentIndex(0)
-                    self.checkBox_2.setChecked(False)
+                    if not saved_data.get('gripper'):
+                        self.comboBox_2.setCurrentIndex(0)
+                        self.comboBox_4.setCurrentIndex(0)
+                        self.checkBox_2.setChecked(False)
 
-                if saved_data.get('gripper') == "nan":
-                    self.checkBox_2.setChecked(True)
-                    return
+                    if saved_data.get('gripper') == "nan":
+                        self.checkBox_2.setChecked(True)
+                        return
 
-                if saved_data.get('gripper'):
-                    self.checkBox_2.setChecked(False)
-                    self.comboBox_2.setCurrentIndex(saved_data.get('gripper').get('tutup'))
-                    self.comboBox_4.setCurrentIndex(saved_data.get('gripper').get('buka'))
+                    if saved_data.get('gripper'):
+                        self.checkBox_2.setChecked(False)
+                        self.comboBox_2.setCurrentIndex(saved_data.get('gripper').get('tutup'))
+                        self.comboBox_4.setCurrentIndex(saved_data.get('gripper').get('buka'))
 
     def saveFile(self):
         check_data = self.check_filled()
@@ -680,8 +688,7 @@ class Ui_MainWindow():
                     save_data.update({'gripper': {'buka': self.comboBox_2.currentIndex(),
                                                   'tutup': self.comboBox_4.currentIndex()}})
                 with open(file_name, "w") as f:
-                    # f.write(json.dumps(save_data))
-                    f.write(yaml.dump(save_data))
+                    f.write(json.dumps(save_data, indent=4))
             else:
                 self.msgBox.setText("Data Tidak Tersimpan")
                 self.msgBox.setIcon(self.msgBox.icon().Information)
@@ -697,6 +704,7 @@ class Ui_MainWindow():
         else:
             window.setupPlot(tipe, data[0])
         window.show()
+
 
 class PlotWindow(QMainWindow):
     def __init__(self):
@@ -722,9 +730,9 @@ class PlotWindow(QMainWindow):
         print(data)
         if tipe == "Trajektori":
             for i in range(len(static_ax_list)):
-                static_ax_list[i].plot(x, data[0][i], label='Input')
+                static_ax_list[i].plot(x, data[0][i], label='Referensi')
                 static_ax_list[i].legend()
-                static_ax_list[i].plot(x, data[1][i], label='Calculated')
+                static_ax_list[i].plot(x, data[1][i], label='Aktual')
                 static_ax_list[i].legend()
                 static_ax_list[i].set_xlabel('Iterasi')
                 static_ax_list[i].set_ylabel('Trajektori')
@@ -743,6 +751,7 @@ class PlotWindow(QMainWindow):
                     static_ax_list[1].set_title('Torsi Servo Tengah')
                     static_ax_list[2].set_title('Torsi Servo Atas')
 
+
 class Worker3(QObject):
     finished = pyqtSignal()
     progress1 = pyqtSignal(str)
@@ -755,7 +764,7 @@ class Worker3(QObject):
         self.serial = serial
 
     def run(self):
-        self.serial.serial_torque_print_test(self)
+        self.serial.serial_log_print(self)
         self.finished.emit()
 
 

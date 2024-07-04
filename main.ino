@@ -37,7 +37,7 @@ void gripperAction(String action){
   }
 }
 
-void movingStatusCheck(float torque = 512, float pos = 50) { // placeholder value
+void movingStatusCheck(float torque_2, float torque_3, float goal_2, float goal_3) {
   int movingStatus = 1;
   uint8_t moving_returned_one;
   uint8_t moving_returned_two;
@@ -46,11 +46,14 @@ void movingStatusCheck(float torque = 512, float pos = 50) { // placeholder valu
     dxl.read(DXL_ID_ONE, 46, 1, (uint8_t*)&moving_returned_one, sizeof(moving_returned_one), 10);
     dxl.read(DXL_ID_TWO, 46, 1, (uint8_t*)&moving_returned_two, sizeof(moving_returned_two), 10);
     dxl.read(DXL_ID_THREE, 46, 1, (uint8_t*)&moving_returned_three, sizeof(moving_returned_three), 10);
-    dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_TWO, torque);
-    dxl.setGoalPosition(DXL_ID_TWO, pos, UNIT_DEGREE);
     if (!moving_returned_one && !moving_returned_two && !moving_returned_three) {
       movingStatus = 0;
       delay(500);
+      dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_TWO, torque_2);
+      dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_THREE, torque_3);
+      delay(100);
+      dxl.setGoalPosition(DXL_ID_TWO, goal_2, UNIT_DEGREE);
+      dxl.setGoalPosition(DXL_ID_THREE, goal_3, UNIT_DEGREE);
     }
   }
 }
@@ -75,12 +78,10 @@ float* calcForwardKinematic(float current1, float current2, float current3) {
 
 float* calcTorque(float current1, float current2, float current3, float target1, float target2, float target3) {
   static float result[6];
-  // float a[6] = {-0.0999999999999998, 0, 0, -0.170256693766065, 0, 0};
-  // float b[6] = {0, -0.389653589745392, -0.279653610881055, 0, -0.127515221024406, -0.0107280701401606};
-  // float c[6] = {0, -0.328416545719673, -0.417298516050250, 0, -0.0252016070810869, -0.111999712837656};
   current1 *= DEG_TO_RAD;
   current2 *= DEG_TO_RAD;
   current3 *= DEG_TO_RAD;
+
   float torsi1 = (-gain1[0] * target1) + (-gain1[1] * target2) + (-gain1[2] * target3) - (gain1[3] + gain1[4] + gain1[5]) * (target1 - current1);
   float torsi2 = (-gain2[0] * target1) + (-gain2[1] * target2) + (-gain2[2] * target3) - (gain2[3] + gain2[4] + gain2[5]) * (target2 - current2);
   float torsi3 = (-gain3[0] * target1) + (-gain3[1] * target2) + (-gain3[2] * target3) - (gain3[3] + gain3[4] + gain3[5]) * (target3 - current3);
@@ -92,18 +93,21 @@ float* calcTorque(float current1, float current2, float current3, float target1,
   result[4] = ceil(abs(torsi3 * (1023 / 1.5)));
   result[5] = abs(torsi3);
 
+// satu
   if (result[0] > 1023){
     result[0] = 1023;
   } else if (result[0] < 100){
     result[0] = 100;
   }
 
+// dua 
   if (result[2] > 1023){
     result[2] = 1023;
   } else if (result[2] < 100){
     result[2] = 100;
   } 
 
+// tiga
   if (result[4] > 1023){
     result[4] = 1023;
   } else if (result[4] < 100){
@@ -197,7 +201,7 @@ void loop() {
       dxl.setGoalPosition(DXL_ID_ONE, theta1, UNIT_DEGREE);
       dxl.setGoalPosition(DXL_ID_TWO, theta2, UNIT_DEGREE);
       dxl.setGoalPosition(DXL_ID_THREE, theta3, UNIT_DEGREE);
-      movingStatusCheck();
+      movingStatusCheck(result[2], result[4], theta2, theta3);
 
       current1 = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE)  - 150;
       current2 = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
@@ -245,7 +249,7 @@ void loop() {
       dxl.setGoalPosition(DXL_ID_ONE, theta1, UNIT_DEGREE);
       dxl.setGoalPosition(DXL_ID_TWO, theta2, UNIT_DEGREE);
       dxl.setGoalPosition(DXL_ID_THREE, theta3, UNIT_DEGREE);
-      movingStatusCheck();
+      movingStatusCheck(result[2], result[4], theta2, theta3);
 
       current1 = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE)  - 150;
       current2 = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
@@ -293,7 +297,7 @@ void loop() {
       dxl.setGoalPosition(DXL_ID_ONE, theta1, UNIT_DEGREE);
       dxl.setGoalPosition(DXL_ID_TWO, theta2, UNIT_DEGREE);
       dxl.setGoalPosition(DXL_ID_THREE, theta3, UNIT_DEGREE);
-      movingStatusCheck();
+      movingStatusCheck(result[2], result[4], theta2, theta3);
       
       current1 = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE)  - 150;
       current2 = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
@@ -341,7 +345,7 @@ void loop() {
       dxl.setGoalPosition(DXL_ID_ONE, theta1, UNIT_DEGREE);
       dxl.setGoalPosition(DXL_ID_TWO, theta2, UNIT_DEGREE);
       dxl.setGoalPosition(DXL_ID_THREE, theta3, UNIT_DEGREE);
-      movingStatusCheck(result[2], theta2);   
+      movingStatusCheck(result[2], result[4], theta2, theta3);   
       
       current1 = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE)  - 150;
       current2 = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
@@ -388,7 +392,7 @@ void loop() {
       dxl.setGoalPosition(DXL_ID_ONE, theta1, UNIT_DEGREE);
       dxl.setGoalPosition(DXL_ID_TWO, theta2, UNIT_DEGREE);
       dxl.setGoalPosition(DXL_ID_THREE, theta3, UNIT_DEGREE);
-      movingStatusCheck();
+      movingStatusCheck(result[2], result[4], theta2, theta3);
 
       current1 = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE)  - 150;
       current2 = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
@@ -436,7 +440,7 @@ void loop() {
       dxl.setGoalPosition(DXL_ID_ONE, theta1, UNIT_DEGREE);
       dxl.setGoalPosition(DXL_ID_TWO, theta2, UNIT_DEGREE);
       dxl.setGoalPosition(DXL_ID_THREE, theta3, UNIT_DEGREE);
-      movingStatusCheck();
+      movingStatusCheck(result[2], result[4], theta2, theta3);
       
       current1 = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE)  - 150;
       current2 = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
@@ -483,7 +487,7 @@ void loop() {
       dxl.setGoalPosition(DXL_ID_ONE, theta1, UNIT_DEGREE);
       dxl.setGoalPosition(DXL_ID_TWO, theta2, UNIT_DEGREE);
       dxl.setGoalPosition(DXL_ID_THREE, theta3, UNIT_DEGREE);
-      movingStatusCheck();
+      movingStatusCheck(result[2], result[4], theta2, theta3);
 
       current1 = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE)  - 150;
       current2 = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);

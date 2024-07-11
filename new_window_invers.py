@@ -31,7 +31,14 @@ class Ui_MainWindow():
         self.data_trajectory_x = []
         self.data_trajectory_y = []
         self.data_trajectory_z = []
+        self.list_x_enabled = []
+        self.list_y_enabled = []
+        self.list_z_enabled = []
+        self.list_x_disabled = []
+        self.list_y_disabled = []
+        self.list_z_disabled = []
         self.plot_windows = list()
+        self.xAxisRange = 7
         self.serial = serial
 
     def setupUi(self):
@@ -40,7 +47,7 @@ class Ui_MainWindow():
         self.mainWindow.setMinimumSize(359, 158)
         self.mainWindow.resize(359, 158)
         self.mainWindow.setMaximumSize(359, 158)
-        self.mainWindow.setWindowIcon(QIcon("icon-app.png"))
+        self.mainWindow.setWindowIcon(QIcon("icon-new.png"))
         self.actionTentang = QAction(self.mainWindow)
         self.actionTentang.setObjectName(u"actionTentang")
         self.actionTentang_2 = QAction(self.mainWindow)
@@ -86,51 +93,72 @@ class Ui_MainWindow():
         self.groupBox_4 = QGroupBox(self.widget_2)
         self.groupBox_4.setObjectName(u"groupBox_4")
         self.groupBox_4.setGeometry(QRect(10, 30, 481, 171))
-        self.x4 = QLineEdit(self.groupBox_4)
-        self.x4.setObjectName(u"x4")
-        self.x4.setGeometry(QRect(290, 50, 51, 22))
-        self.y4 = QLineEdit(self.groupBox_4)
-        self.y4.setObjectName(u"y4")
-        self.y4.setGeometry(QRect(290, 80, 51, 22))
-        self.z4 = QLineEdit(self.groupBox_4)
-        self.z4.setObjectName(u"z4")
-        self.z4.setGeometry(QRect(290, 110, 51, 22))
+        # X
         self.x0 = QLineEdit(self.groupBox_4)
         self.x0.setObjectName(u"x0")
         self.x0.setGeometry(QRect(50, 50, 51, 22))
-        self.z0 = QLineEdit(self.groupBox_4)
-        self.z0.setObjectName(u"z0")
-        self.z0.setGeometry(QRect(50, 110, 51, 22))
-        self.z2 = QLineEdit(self.groupBox_4)
-        self.z2.setObjectName(u"z2")
-        self.z2.setGeometry(QRect(170, 110, 51, 22))
-        self.y1 = QLineEdit(self.groupBox_4)
-        self.y1.setObjectName(u"y1")
-        self.y1.setGeometry(QRect(110, 80, 51, 22))
         self.x1 = QLineEdit(self.groupBox_4)
         self.x1.setObjectName(u"x1")
         self.x1.setGeometry(QRect(110, 50, 51, 22))
-        self.z3 = QLineEdit(self.groupBox_4)
-        self.z3.setObjectName(u"z3")
-        self.z3.setGeometry(QRect(230, 110, 51, 22))
-        self.y2 = QLineEdit(self.groupBox_4)
-        self.y2.setObjectName(u"y2")
-        self.y2.setGeometry(QRect(170, 80, 51, 22))
-        self.z1 = QLineEdit(self.groupBox_4)
-        self.z1.setObjectName(u"z1")
-        self.z1.setGeometry(QRect(110, 110, 51, 22))
-        self.y0 = QLineEdit(self.groupBox_4)
-        self.y0.setObjectName(u"y0")
-        self.y0.setGeometry(QRect(50, 80, 51, 22))
         self.x2 = QLineEdit(self.groupBox_4)
         self.x2.setObjectName(u"x2")
         self.x2.setGeometry(QRect(170, 50, 51, 22))
         self.x3 = QLineEdit(self.groupBox_4)
         self.x3.setObjectName(u"x3")
         self.x3.setGeometry(QRect(230, 50, 51, 22))
+        self.x4 = QLineEdit(self.groupBox_4)
+        self.x4.setObjectName(u"x4")
+        self.x4.setGeometry(QRect(290, 50, 51, 22))
+        self.x5 = QLineEdit(self.groupBox_4)
+        self.x5.setObjectName(u"x5")
+        self.x5.setGeometry(QRect(350, 50, 51, 22))
+        self.x6 = QLineEdit(self.groupBox_4)
+        self.x6.setObjectName(u"x6")
+        self.x6.setGeometry(QRect(410, 50, 51, 22))
+        # Y
+        self.y0 = QLineEdit(self.groupBox_4)
+        self.y0.setObjectName(u"y0")
+        self.y0.setGeometry(QRect(50, 80, 51, 22))
+        self.y1 = QLineEdit(self.groupBox_4)
+        self.y1.setObjectName(u"y1")
+        self.y1.setGeometry(QRect(110, 80, 51, 22))
+        self.y2 = QLineEdit(self.groupBox_4)
+        self.y2.setObjectName(u"y2")
+        self.y2.setGeometry(QRect(170, 80, 51, 22))
         self.y3 = QLineEdit(self.groupBox_4)
         self.y3.setObjectName(u"y3")
         self.y3.setGeometry(QRect(230, 80, 51, 22))
+        self.y4 = QLineEdit(self.groupBox_4)
+        self.y4.setObjectName(u"y4")
+        self.y4.setGeometry(QRect(290, 80, 51, 22))
+        self.y5 = QLineEdit(self.groupBox_4)
+        self.y5.setObjectName(u"y5")
+        self.y5.setGeometry(QRect(350, 80, 51, 22))
+        self.y6 = QLineEdit(self.groupBox_4)
+        self.y6.setObjectName(u"y6")
+        self.y6.setGeometry(QRect(410, 80, 51, 22))
+        # Z
+        self.z0 = QLineEdit(self.groupBox_4)
+        self.z0.setObjectName(u"z0")
+        self.z0.setGeometry(QRect(50, 110, 51, 22))
+        self.z1 = QLineEdit(self.groupBox_4)
+        self.z1.setObjectName(u"z1")
+        self.z1.setGeometry(QRect(110, 110, 51, 22))
+        self.z2 = QLineEdit(self.groupBox_4)
+        self.z2.setObjectName(u"z2")
+        self.z2.setGeometry(QRect(170, 110, 51, 22))
+        self.z3 = QLineEdit(self.groupBox_4)
+        self.z3.setObjectName(u"z3")
+        self.z3.setGeometry(QRect(230, 110, 51, 22))
+        self.z4 = QLineEdit(self.groupBox_4)
+        self.z4.setObjectName(u"z4")
+        self.z4.setGeometry(QRect(290, 110, 51, 22))
+        self.z5 = QLineEdit(self.groupBox_4)
+        self.z5.setObjectName(u"z5")
+        self.z5.setGeometry(QRect(350, 110, 51, 22))
+        self.z6 = QLineEdit(self.groupBox_4)
+        self.z6.setObjectName(u"z6")
+        self.z6.setGeometry(QRect(410, 110, 51, 22))
         self.label_4 = QLabel(self.groupBox_4)
         self.label_4.setObjectName(u"label_4")
         self.label_4.setGeometry(QRect(70, 30, 16, 16))
@@ -155,30 +183,9 @@ class Ui_MainWindow():
         self.label_12 = QLabel(self.groupBox_4)
         self.label_12.setObjectName(u"label_12")
         self.label_12.setGeometry(QRect(30, 110, 16, 16))
-        self.checkBox = QCheckBox(self.groupBox_4)
-        self.checkBox.setObjectName(u"checkBox")
-        self.checkBox.setGeometry(QRect(200, 130, 101, 31))
-        self.x5 = QLineEdit(self.groupBox_4)
-        self.x5.setObjectName(u"x5")
-        self.x5.setGeometry(QRect(350, 50, 51, 22))
-        self.y5 = QLineEdit(self.groupBox_4)
-        self.y5.setObjectName(u"y5")
-        self.y5.setGeometry(QRect(350, 80, 51, 22))
-        self.z5 = QLineEdit(self.groupBox_4)
-        self.z5.setObjectName(u"z5")
-        self.z5.setGeometry(QRect(350, 110, 51, 22))
         self.label_13 = QLabel(self.groupBox_4)
         self.label_13.setObjectName(u"label_13")
         self.label_13.setGeometry(QRect(370, 30, 16, 16))
-        self.x6 = QLineEdit(self.groupBox_4)
-        self.x6.setObjectName(u"x6")
-        self.x6.setGeometry(QRect(410, 50, 51, 22))
-        self.y6 = QLineEdit(self.groupBox_4)
-        self.y6.setObjectName(u"y6")
-        self.y6.setGeometry(QRect(410, 80, 51, 22))
-        self.z6 = QLineEdit(self.groupBox_4)
-        self.z6.setObjectName(u"z6")
-        self.z6.setGeometry(QRect(410, 110, 51, 22))
         self.label_14 = QLabel(self.groupBox_4)
         self.label_14.setObjectName(u"label_14")
         self.label_14.setGeometry(QRect(430, 30, 16, 16))
@@ -234,13 +241,13 @@ class Ui_MainWindow():
         self.groupBox_9.setObjectName(u"groupBox_9")
         self.groupBox_9.setGeometry(QRect(20, 30, 131, 171))
         self.comboBox_2 = QComboBox(self.groupBox_9)
-        self.comboBox_2.addItem("1", ["satu", "tutup"])
-        self.comboBox_2.addItem("2", ["dua", "tutup"])
-        self.comboBox_2.addItem("3", ["tiga", "tutup"])
-        self.comboBox_2.addItem("4", ["empat", "tutup"])
-        self.comboBox_2.addItem("5", ["lima", "tutup"])
-        self.comboBox_2.addItem("6", ["enam", "tutup"])
-        self.comboBox_2.addItem("7", ["tujuh", "tutup"])
+        self.comboBox_2.addItem("1", [1, "tutup"])
+        self.comboBox_2.addItem("2", [2, "tutup"])
+        self.comboBox_2.addItem("3", [3, "tutup"])
+        self.comboBox_2.addItem("4", [4, "tutup"])
+        self.comboBox_2.addItem("5", [5, "tutup"])
+        self.comboBox_2.addItem("6", [6, "tutup"])
+        self.comboBox_2.addItem("7", [7, "tutup"])
         self.comboBox_2.setObjectName(u"comboBox_2")
         self.comboBox_2.setGeometry(QRect(20, 40, 91, 22))
         self.label_5 = QLabel(self.groupBox_9)
@@ -250,13 +257,13 @@ class Ui_MainWindow():
         self.label_15.setObjectName(u"label_15")
         self.label_15.setGeometry(QRect(40, 20, 31, 16))
         self.comboBox_4 = QComboBox(self.groupBox_9)
-        self.comboBox_4.addItem("1", ["satu", "buka"])
-        self.comboBox_4.addItem("2", ["dua", "buka"])
-        self.comboBox_4.addItem("3", ["tiga", "buka"])
-        self.comboBox_4.addItem("4", ["empat", "buka"])
-        self.comboBox_4.addItem("5", ["lima", "buka"])
-        self.comboBox_4.addItem("6", ["enam", "buka"])
-        self.comboBox_4.addItem("7", ["tujuh", "buka"])
+        self.comboBox_4.addItem("1", [1, "buka"])
+        self.comboBox_4.addItem("2", [2, "buka"])
+        self.comboBox_4.addItem("3", [3, "buka"])
+        self.comboBox_4.addItem("4", [4, "buka"])
+        self.comboBox_4.addItem("5", [5, "buka"])
+        self.comboBox_4.addItem("6", [6, "buka"])
+        self.comboBox_4.addItem("7", [7, "buka"])
         self.comboBox_4.setObjectName(u"comboBox_4")
         self.comboBox_4.setObjectName(u"comboBox_4")
         self.comboBox_4.setGeometry(QRect(20, 110, 91, 22))
@@ -278,10 +285,22 @@ class Ui_MainWindow():
         self.label_19 = QLabel(self.groupBox_10)
         self.label_19.setObjectName(u"label_19")
         self.label_19.setGeometry(QRect(20, 90, 71, 16))
+        self.label_16 = QLabel(self.groupBox_6)
+        self.label_16.setObjectName(u"label_16")
+        self.label_16.setGeometry(QRect(160, 70, 91, 41))
+        self.label_17 = QLabel(self.groupBox_6)
+        self.label_17.setObjectName(u"label_17")
+        self.label_17.setGeometry(QRect(190, 100, 20, 21))
+        self.pushButton_3 = QPushButton(self.groupBox_6)
+        self.pushButton_3.setObjectName(u"pushButton_3")
+        self.pushButton_3.setGeometry(QRect(160, 120, 31, 31))
+        self.pushButton_4 = QPushButton(self.groupBox_6)
+        self.pushButton_4.setObjectName(u"pushButton_4")
+        self.pushButton_4.setGeometry(QRect(200, 120, 31, 31))
         self.label_2 = QLabel(self.centralwidget)
         self.label_2.setObjectName(u"label_2")
         self.label_2.setGeometry(QRect(410, 440, 141, 151))
-        self.logo = QPixmap("logo100crop.jpg")
+        self.logo = QPixmap("new-logo.png")
         self.mainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self.mainWindow)
         self.menubar.setObjectName(u"menubar")
@@ -331,7 +350,6 @@ class Ui_MainWindow():
         self.label_11.setText(QCoreApplication.translate("self.mainWindow", u"Y", None))
         self.label_12.setText(QCoreApplication.translate("self.mainWindow", u"Z", None))
         self.groupBox_3.setTitle(QCoreApplication.translate("self.mainWindow", u"Matriks K (Gain)", None))
-        self.checkBox.setText(QCoreApplication.translate("self.mainWindow", u"Z Value Toogle", None))
         self.label_13.setText(QCoreApplication.translate("self.mainWindow", u"6", None))
         self.label_14.setText(QCoreApplication.translate("self.mainWindow", u"7", None))
         self.labelMatrix_1.setText(QCoreApplication.translate("self.mainWindow", u"1", None))
@@ -369,6 +387,12 @@ class Ui_MainWindow():
         self.pushButton_9.setText(QCoreApplication.translate("self.mainWindow", u"Plot", None))
         self.label_18.setText(QCoreApplication.translate("self.mainWindow", u"Log Torsi", None))
         self.label_19.setText(QCoreApplication.translate("self.mainWindow", u"Log Trajektori", None))
+        self.label_16.setText(
+            QCoreApplication.translate("MainWindow", u"<html><head/><body><p>Jumlah Iterasi</p></body></html>", None))
+        self.label_17.setText(
+            QCoreApplication.translate("MainWindow", u"<html><head/><body><p>7</p></body></html>", None))
+        self.pushButton_3.setText(QCoreApplication.translate("MainWindow", u"-", None))
+        self.pushButton_4.setText(QCoreApplication.translate("MainWindow", u"+", None))
         self.checkBox_2.setText(QCoreApplication.translate("self.mainWindow", u"Tanpa Gripper", None))
         self.label_2.setPixmap(self.logo)
 
@@ -377,10 +401,9 @@ class Ui_MainWindow():
         self.actionKeluar.triggered.connect(self.mainWindow.close)
         self.pushButton.clicked.connect(lambda: self.serial.serial_com_list(self))
         self.pushButton_2.clicked.connect(lambda: self.serial_connect())
-        self.pushButton_3.clicked.connect(lambda: self.trajectory_menu())
-        self.pushButton_4.clicked.connect(lambda: self.test_stream_stop())
+        self.pushButton_3.clicked.connect(lambda: self.kurangiIterasi())
+        self.pushButton_4.clicked.connect(lambda: self.tambahIterasi())
         self.pushButton_5.clicked.connect(lambda: self.send_func())
-        # self.pushButton_5.clicked.connect(lambda: self.mock_func())
         self.pushButton_6.clicked.connect(lambda: self.saveFile())
         self.pushButton_7.clicked.connect(lambda: self.openFile())
         self.pushButton_8.clicked.connect(lambda: self.plotWindow("Torsi", self.data_torque))
@@ -388,7 +411,6 @@ class Ui_MainWindow():
                                                                   self.data_trajectory))
         # self.pushButton_9.clicked.connect(lambda: self.plotWindow("Trajektori",
         # [0.15, 0.15, 0.15, -0.15, -0.15, -0.15, 0], [0.0003, 0.0004, 0.0003, 0.0021, 0.0021, 0.0013, 0.52]))
-        self.checkBox.stateChanged.connect(lambda: self.toogle_checkbox())
         self.checkBox_2.stateChanged.connect(lambda: self.toogle_checkbox_2())
         self.groupBox_2.hide()
         self.plainTextEdit.setReadOnly(True)
@@ -399,6 +421,10 @@ class Ui_MainWindow():
         self.list_y = [self.y0, self.y1, self.y2, self.y3, self.y4, self.y5, self.y6]
         self.list_z = [self.z0, self.z1, self.z2, self.z3, self.z4, self.z5, self.z6]
         self.list_gain = [self.inputMatrix_1, self.inputMatrix_2, self.inputMatrix_3]
+        [self.list_x_enabled.append(x) for x in self.list_x]
+        [self.list_y_enabled.append(y) for y in self.list_y]
+        [self.list_z_enabled.append(z) for z in self.list_z]
+        self.pushButton_4.setEnabled(False)
 
         # disable plot button on app start
         self.pushButton_8.setEnabled(False)
@@ -411,16 +437,39 @@ class Ui_MainWindow():
         self.groupBox_7.hide()
         self.groupBox_8.hide()
 
-        self.checkBox.hide()
+    def kurangiIterasi(self):
+        self.list_x_enabled[-1].setEnabled(False)
+        self.list_y_enabled[-1].setEnabled(False)
+        self.list_z_enabled[-1].setEnabled(False)
+        self.list_x_disabled.append(self.list_x_enabled[-1])
+        self.list_y_disabled.append(self.list_y_enabled[-1])
+        self.list_z_disabled.append(self.list_z_enabled[-1])
+        self.list_x_enabled.pop()
+        self.list_y_enabled.pop()
+        self.list_z_enabled.pop()
+        self.label_17.setText(f"{len(self.list_x_enabled)}")
+        print(len(self.list_x_enabled))
+        if len(self.list_x_enabled) == 6:
+            self.pushButton_4.setEnabled(True)
+        if len(self.list_x_enabled) == 1:
+            self.pushButton_3.setEnabled(False)
 
-    # def mock_func(self):
-    #     a = self.comboBox_2.itemData(self.comboBox_2.currentIndex())
-    #     b = self.comboBox_4.itemData(self.comboBox_4.currentIndex())
-    #     print(a)
-    #     print(type(a))
-    #
-    #     print(b)
-    #     print(type(b))
+    def tambahIterasi(self):
+        self.list_x_disabled[-1].setEnabled(True)
+        self.list_y_disabled[-1].setEnabled(True)
+        self.list_z_disabled[-1].setEnabled(True)
+        self.list_x_enabled.append(self.list_x_disabled[-1])
+        self.list_y_enabled.append(self.list_y_disabled[-1])
+        self.list_z_enabled.append(self.list_z_disabled[-1])
+        del self.list_x_disabled[-1]
+        del self.list_y_disabled[-1]
+        del self.list_z_disabled[-1]
+        self.label_17.setText(f"{len(self.list_x_enabled)}")
+        print(len(self.list_x_enabled))
+        if len(self.list_x_enabled) == 2:
+            self.pushButton_3.setEnabled(True)
+        if len(self.list_x_enabled) == 7:
+            self.pushButton_4.setEnabled(False)
 
     def check_gripper(self):
         if not self.checkBox_2.isChecked():
@@ -434,16 +483,13 @@ class Ui_MainWindow():
                 return True
         else:
             return True
-        # if self.checkBox_2.isChecked():
-        #     return False
-        # else:
-        #     return self.comboBox_2.currentIndex(), self.comboBox_4.currentIndex()
 
     def check_filled(self):
         self.unfilled1 = False
         self.unfilled2 = False
+
         # check if all the column is filled and the value is in valid range
-        for x, y, z in zip(self.list_x, self.list_y, self.list_z):
+        for x, y, z in zip(self.list_x_enabled, self.list_y_enabled, self.list_z_enabled):
             x = x.text()
             y = y.text()
             z = z.text()
@@ -490,7 +536,9 @@ class Ui_MainWindow():
         self.data_torque_dua.append(data[1])
         self.data_torque_tiga.append(data[2])
 
-        if len(self.data_torque_satu) == 7 and len(self.data_torque_dua) == 7 and len(self.data_torque_tiga) == 7:
+        if (len(self.data_torque_satu) == len(self.list_x_enabled)
+                and len(self.data_torque_dua) == len(self.list_y_enabled)
+                and len(self.data_torque_tiga) == len(self.list_z_enabled)):
             self.data_torque = [self.data_torque_satu, self.data_torque_dua, self.data_torque_tiga]
             print(f"data torque final {self.data_torque}")
 
@@ -499,11 +547,13 @@ class Ui_MainWindow():
         self.data_trajectory_y.append(data[1])
         self.data_trajectory_z.append(data[2])
 
-        if len(self.data_trajectory_x) == 7 and len(self.data_trajectory_y) == 7 and len(self.data_trajectory_z) == 7:
+        if (len(self.data_trajectory_x) == len(self.list_x_enabled)
+                and len(self.data_trajectory_y) == len(self.list_y_enabled)
+                and len(self.data_trajectory_z) == len(self.list_z_enabled)):
             self.data_trajectory = [self.data_trajectory_x, self.data_trajectory_y, self.data_trajectory_z]
-            self.data_trajectory_input = [[float(x.text()) for x in self.list_x],
-                                          [float(y.text()) for y in self.list_y],
-                                          [float(z.text()) for z in self.list_z]]
+            self.data_trajectory_input = [[float(x.text()) for x in self.list_x_enabled],
+                                          [float(y.text()) for y in self.list_y_enabled],
+                                          [float(z.text()) for z in self.list_z_enabled]]
             print(f"data trajektori servo {self.data_trajectory}")
             print(f"data trajektori input {self.data_trajectory_input}")
 
@@ -518,15 +568,18 @@ class Ui_MainWindow():
 
                 gripper_action_tutup = self.comboBox_2.itemData(self.comboBox_2.currentIndex())
                 gripper_action_buka = self.comboBox_4.itemData(self.comboBox_4.currentIndex())
-                gripper_action = [gripper_action_tutup[0], gripper_action_tutup[1], gripper_action_buka[0],
-                                  gripper_action_buka[1]]
+                gripper_action = [gripper_action_buka[0], gripper_action_tutup[0]]
 
-                self.serial.sent_trajectory_gain(self, gripper_action)
+                self.serial.sent_trajectory_gain(self, gripper_action, self.list_x_enabled, self.list_y_enabled,
+                                                 self.list_z_enabled)
+                self.xAxisRange = len(self.list_x_enabled)
+                print(self.xAxisRange)
                 self.pushButton_5.setEnabled(False)
                 self.pushButton_8.setEnabled(False)
                 self.pushButton_9.setEnabled(False)
+
                 self.thread = QThread()
-                self.worker = Worker3(self.serial)
+                self.worker = Worker(self.serial)
                 self.worker.moveToThread(self.thread)
                 #
                 self.thread.started.connect(self.worker.run)
@@ -542,44 +595,10 @@ class Ui_MainWindow():
                 self.thread.start()
 
             else:
-                self.msgBox.setText(f"COM belum terhubung!")
+                self.msgBox.setText(f"Port belum terhubung!")
                 self.msgBox.setWindowTitle("Informasi")
                 self.msgBox.setIcon(self.msgBox.icon().Information)
                 self.msgBox.exec()
-
-    def toogle_checkbox(self):
-        if self.checkBox.isChecked():
-            self.z0.setEnabled(False)
-            self.z1.setEnabled(False)
-            self.z2.setEnabled(False)
-            self.z3.setEnabled(False)
-            self.z4.setEnabled(False)
-            self.z5.setEnabled(False)
-            self.z6.setEnabled(False)
-            # set text
-            self.z0.setText("0.2")
-            self.z1.setText("0.04")
-            self.z2.setText("0.2")
-            self.z3.setText("0.2")
-            self.z4.setText("0.04")
-            self.z5.setText("0.2")
-            self.z6.setText("0.2")
-        else:
-            self.z0.setEnabled(True)
-            self.z1.setEnabled(True)
-            self.z2.setEnabled(True)
-            self.z3.setEnabled(True)
-            self.z4.setEnabled(True)
-            self.z5.setEnabled(True)
-            self.z6.setEnabled(True)
-            # clear text
-            self.z0.clear()
-            self.z1.clear()
-            self.z2.clear()
-            self.z3.clear()
-            self.z4.clear()
-            self.z5.clear()
-            self.z6.clear()
 
     def toogle_checkbox_2(self):
         if self.checkBox_2.isChecked():
@@ -592,17 +611,19 @@ class Ui_MainWindow():
     def serial_connect(self):
         if self.pushButton_2.text() == "Hubungkan":
             self.serial.serial_connect(self)
-            if self.serial.ser.status:
+            if self.serial.open:
                 self.plainTextEdit.clear()
                 self.plainTextEdit_2.clear()
                 self.pushButton_2.setText(QCoreApplication.translate("self.mainWindow", u"Putuskan", None))
                 self.pushButton.setEnabled(False)
                 self.comboBox.setEnabled(False)
+
                 # message box berhasil
                 self.msgBox.setText(f"Berhasil terhubung ke port {self.comboBox.currentText()}")
                 self.msgBox.setWindowTitle("Informasi")
                 self.msgBox.setIcon(self.msgBox.icon().Information)
                 self.msgBox.exec()
+                # resize window dan ubah geometri elemen
                 self.mainWindow.setMaximumSize(970, 666)
                 self.mainWindow.resize(970, 666)
                 self.groupBox.setGeometry(QRect(10, 0, 341, 211))
@@ -638,27 +659,65 @@ class Ui_MainWindow():
 
     def openFile(self):
         file_name, _ = QFileDialog.getOpenFileName(self.mainWindow, "Open File", "", "Text Files (*.txt)")
-
         if file_name:
             with open(file_name, "r") as f:
                 saved_data = f.read()
                 saved_data = json.loads(saved_data)
                 if saved_data:
-                    for x, value in zip(self.list_x, saved_data.get("trajectory").get("x")):
+                    fullLen = False
+                    for x, y, z in zip(self.list_x, self.list_y, self.list_z):
+                        x.clear()
+                        y.clear()
+                        z.clear()
+
+                    if self.list_x_disabled:
+                        for x, y, z in zip(self.list_x_disabled, self.list_y_disabled, self.list_z_disabled):
+                            x.setEnabled(True)
+                            y.setEnabled(True)
+                            z.setEnabled(True)
+                    self.list_x_disabled.clear()
+                    self.list_y_disabled.clear()
+                    self.list_z_disabled.clear()
+                    
+                    [x.setEnabled(True) for x in self.list_x_disabled]
+                    [y.setEnabled(True) for y in self.list_y_disabled]
+                    [z.setEnabled(True) for z in self.list_z_disabled]
+                    self.list_x_enabled.clear()
+                    self.list_y_enabled.clear()
+                    self.list_z_enabled.clear()
+                    [self.list_x_enabled.append(x) for x in self.list_x]
+                    [self.list_y_enabled.append(y) for y in self.list_y]
+                    [self.list_z_enabled.append(z) for z in self.list_z]
+
+                    if len(self.list_x_enabled) == 7:
+                        self.pushButton_4.setEnabled(False)
+                        self.pushButton_3.setEnabled(True)
+                    if len(self.list_x_enabled) == 1:
+                        self.pushButton_3.setEnabled(False)
+                        self.pushButton_4.setEnabled(True)
+
+                    self.label_17.setText(f"{len(self.list_x_enabled)}")
+                    if len(saved_data.get("trajectory").get("x")) == 7:
+                        fullLen = True
+                    if not fullLen:
+                        for i in range(7 - len(saved_data.get("trajectory").get("x"))):
+                            self.kurangiIterasi()
+
+                    for x, value in zip(self.list_x_enabled, saved_data.get("trajectory").get("x")):
                         precision = zeros_count(value)
                         if precision > 0 and precision is not inf:
                             x.setText(format(value, f'.{precision + 1}f'))
                         else:
                             x.setText(str(value))
 
-                    for y, value in zip(self.list_y, saved_data.get("trajectory").get("y")):
+                    for y, value in zip(self.list_y_enabled, saved_data.get("trajectory").get("y")):
                         precision = zeros_count(value)
                         if precision > 0 and precision is not inf:
                             y.setText(format(value, f'.{precision + 1}f'))
                         else:
                             y.setText(str(value))
                     #
-                    for z, value in zip(self.list_z, saved_data.get("trajectory").get("z")):
+                    for z, value in zip(self.list_z_enabled, saved_data.get("trajectory").get("z")):
                         precision = zeros_count(value)
                         if precision > 0 and precision is not inf:
                             z.setText(format(value, f'.{precision + 1}f'))
@@ -685,7 +744,6 @@ class Ui_MainWindow():
     def saveFile(self):
         check_data = self.check_filled()
         check_gripper = self.check_gripper()
-        print(check_gripper)
         if check_data and check_gripper:
             file_name, _ = QFileDialog.getSaveFileName(self.mainWindow, "Save File", "", "Text Files (*.txt)")
             if file_name.endswith(".txt"):
@@ -693,9 +751,9 @@ class Ui_MainWindow():
                     "matrixGain": [self.inputMatrix_1.text().split(" "), self.inputMatrix_2.text().split(" "),
                                    self.inputMatrix_3.text().split(" ")],
                     "trajectory": {
-                        "x": [float(x.text()) for x in self.list_x],
-                        "y": [float(y.text()) for y in self.list_y],
-                        "z": [float(z.text()) for z in self.list_z]
+                        "x": [float(x.text()) for x in self.list_x_enabled],
+                        "y": [float(y.text()) for y in self.list_y_enabled],
+                        "z": [float(z.text()) for z in self.list_z_enabled]
                     }
                 }
                 if self.checkBox_2.isChecked():
@@ -716,9 +774,9 @@ class Ui_MainWindow():
         self.plot_windows.append(window)
         window.setWindowTitle(f"Plot {tipe}")
         if tipe == "Trajektori":
-            window.setupPlot(tipe, data[0], data[1])
+            window.setupPlot(tipe, data[0], data[1], self.xAxisRange)
         else:
-            window.setupPlot(tipe, data[0])
+            window.setupPlot(tipe, data[0], self.xAxisRange)
         window.show()
 
 
@@ -741,25 +799,24 @@ class PlotWindow(QMainWindow):
         print(e.size().height())
 
     def setupPlot(self, tipe, *data):
-        x = range(1, 8)
         static_ax_list = [self.ax_1, self.ax_2, self.ax_3]
         print(data)
         if tipe == "Trajektori":
             for i in range(len(static_ax_list)):
-                static_ax_list[i].plot(x, data[0][i], label='Referensi')
+                static_ax_list[i].plot(range(1, data[2]+1), data[0][i], label='Referensi')
                 static_ax_list[i].legend()
-                static_ax_list[i].plot(x, data[1][i], label='Aktual')
+                static_ax_list[i].plot(range(1, data[2]+1), data[1][i], label='Aktual')
                 static_ax_list[i].legend()
                 static_ax_list[i].set_xlabel('Iterasi')
-                static_ax_list[i].set_ylabel('Trajektori')
+                static_ax_list[i].set_ylabel('Trajectory')
                 if i == 2:
-                    static_ax_list[0].set_title('Trajektori X')
-                    static_ax_list[1].set_title('Trajektori Y')
-                    static_ax_list[2].set_title('Trajektori Z')
+                    static_ax_list[0].set_title('Trajectory X')
+                    static_ax_list[1].set_title('TrajectorY Y')
+                    static_ax_list[2].set_title('Trajectory Z')
 
         else:
             for i in range(len(static_ax_list)):
-                static_ax_list[i].plot(x, data[0][i])
+                static_ax_list[i].plot(range(1, data[1]+1), data[0][i])
                 static_ax_list[i].set_xlabel('Iterasi')
                 static_ax_list[i].set_ylabel('Torsi')
                 if i == 2:
@@ -768,7 +825,7 @@ class PlotWindow(QMainWindow):
                     static_ax_list[2].set_title('Torsi Servo Atas')
 
 
-class Worker3(QObject):
+class Worker(QObject):
     finished = pyqtSignal()
     progress1 = pyqtSignal(str)
     progress2 = pyqtSignal(str)

@@ -23,23 +23,38 @@ class SerialControl:
         gui.comboBox.addItems(self.coms)
 
     def serial_connect(self, gui):
-        try:
-            self.ser.is_open
-        except:
+        if not self.open:
             self.ser = serial.Serial(gui.comboBox.currentText(), 115200, timeout=0.1)
             time.sleep(2)
+            print(self.ser.is_open)
+        else:
+            self.ser.close()
+        # try:
+        #     self.ser.close
+        #     self.ser.is_open
+        # except:
+        #     print("conn")
+        #     self.ser = serial.Serial(gui.comboBox.currentText(), 115200, timeout=0.1)
+        #     time.sleep(2)
 
         try:
             if self.ser.is_open:
                 print("Port successfully opened")
-                self.open = True
                 sendData = json.dumps(self.sync_check)
                 sendData = sendData + '\n'
                 self.ser.write(sendData.encode())
                 tdata = self.ser.readline()
                 a = tdata.decode()
+                print(a)
                 if a == "sync_ok\n":
                     self.ser.status = True
+                    self.open = True
+                else:
+                    print("tes")
+                    gui.msgBox.setIcon(self.msgBox.icon().Warning)
+                    gui.msgBox.setText(f"Gagal terhubung ke port {self.comboBox.currentText()}")
+                    gui.msgBox.exec()
+                    self.open = False
 
             else:
                 self.ser = serial.Serial(gui.comboBox.currentText(), 115200, timeout=0.1)
@@ -60,7 +75,7 @@ class SerialControl:
             self.ser.status = False
             self.open = False
 
-    def sent_trajectory_gain(self, gui, action):
+    def sent_trajectory_gain(self, gui, action, *trajectory):
         theta1 = []
         theta2 = []
         theta3 = []
@@ -87,12 +102,13 @@ class SerialControl:
         if ' ' in c:
             c = c.split(" ")
 
-        x = [float(gui.x0.text()), float(gui.x1.text()), float(gui.x2.text()), float(gui.x3.text()),
-             float(gui.x4.text()), float(gui.x5.text()), float(gui.x6.text())]
-        y = [float(gui.y0.text()), float(gui.y1.text()), float(gui.y2.text()), float(gui.y3.text()),
-             float(gui.y4.text()), float(gui.y5.text()), float(gui.y6.text())]
-        z = [float(gui.z0.text()), float(gui.z1.text()), float(gui.z2.text()), float(gui.z3.text()),
-             float(gui.z4.text()), float(gui.z5.text()), float(gui.z6.text())]
+        x = []
+        y = []
+        z = []
+        for xval, yval, zval in zip(trajectory[0], trajectory[1], trajectory[2]):
+            x.append(float(xval.text()))
+            y.append(float(yval.text()))
+            z.append(float(zval.text()))
 
         for i in range(len(x)):
             calcTheta1 = atan(y[i] / x[i])
@@ -115,46 +131,13 @@ class SerialControl:
             rad2.append(round(calcTheta2, 4))
             rad3.append(round(calcTheta3, 4))
 
-        data1 = {
-            "finalTheta": {
-                "satu": {
-                    "theta1": theta1[0],
-                    "theta2": theta2[0],
-                    "theta3": theta3[0]
-                },
-                "dua": {
-                    "theta1": theta1[1],
-                    "theta2": theta2[1],
-                    "theta3": theta3[1]
-                },
-                "tiga": {
-                    "theta1": theta1[2],
-                    "theta2": theta2[2],
-                    "theta3": theta3[2]
-                },
-                "empat": {
-                    "theta1": theta1[3],
-                    "theta2": theta2[3],
-                    "theta3": theta3[3]
-                },
-                "lima": {
-                    "theta1": theta1[4],
-                    "theta2": theta2[4],
-                    "theta3": theta3[4]
-                },
-                "enam": {
-                    "theta1": theta1[5],
-                    "theta2": theta2[5],
-                    "theta3": theta3[5]
-                },
-                "tujuh": {
-                    "theta1": theta1[6],
-                    "theta2": theta2[6],
-                    "theta3": theta3[6]
-                }
-            }
-        }
-        data2 = {
+        data = {
+            "theta": {
+                "satu": theta1,
+                "dua": theta2,
+                "tiga": theta3
+            },
+            "thetaLen": len(theta1),
             "matrixGain": {
                 "satu": a,
                 "dua": b,
@@ -166,32 +149,20 @@ class SerialControl:
                 "rad3": rad3
             }
         }
-        print(data1)
-        print(data2)
         if not gui.checkBox_2.isChecked():
-            data2.update({'gripper': {action[0]: action[1], action[2]: action[3]}})
-            pprint(data2, sort_dicts=False, indent=4, width=100)
-        sentData = json.dumps(data1)
+            data.update({"gripper": {"buka": action[0], "tutup": action[1]}})
+        pprint(data, sort_dicts=False, indent=4, width=100)
+        sentData = json.dumps(data)
         sentData = sentData + '\n'
         self.ser.write(sentData.encode())
         temp = self.ser.readline()
         temp = temp.decode()
         print(temp)
-        if "data 1 ok" in temp:
+        if "data ok" in temp:
             pass
         else:
-            print("not ok  1")
+            print("data not ok")
 
-        sentData = json.dumps(data2)
-        sentData = sentData + '\n'
-        self.ser.write(sentData.encode())
-        temp = self.ser.readline()
-        temp = temp.decode()
-        print(temp)
-        if "data 2 ok" in temp:
-            pass
-        else:
-            print("not ok 2")
 
     def serial_log_print(self, signal):
         self.a = True

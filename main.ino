@@ -73,7 +73,7 @@ float* calcForwardKinematic(movingData& data) {
 }
 
 float* calcTorque(movingData& data) {
-  static float result[6];
+  static float result[9];
   data.current[0] *= DEG_TO_RAD;
   data.current[1] *= DEG_TO_RAD;
   data.current[2] *= DEG_TO_RAD;
@@ -83,20 +83,25 @@ float* calcTorque(movingData& data) {
   float torsi3 = (-gain3[0] * data.target[0]) + (-gain3[1] * data.target[1]) + (-gain3[2] * data.target[2]) + (-gain3[3] * (data.target[0] - data.current[0])) + (-gain3[4] * (data.target[1] - data.current[1])) + (-gain3[5] * (data.target[2] - data.current[2]));
   
   result[0] = ceil(abs(torsi1 * (1023 / 1.5)));
-  // result[0] = ceil(abs(torsi1 * (100 / 1.5)));
   result[1] = abs(torsi1);
   result[2] = ceil(abs(torsi2 * (1023 / 1.5)));
-  // result[2] = ceil(abs(torsi2 * (100 / 1.5)));
   result[3] = abs(torsi2);
   result[4] = ceil(abs(torsi3 * (1023 / 1.5)));
-  // result[4] = ceil(abs(torsi3 * (100 / 1.5)));
   result[5] = abs(torsi3);
+  result[6] = ceil(abs(torsi1 * (100 / 1.5)));
+  result[7] = ceil(abs(torsi2 * (100 / 1.5)));
+  result[8] = ceil(abs(torsi3 * (100 / 1.5)));
 
 // satu
   if (result[0] > 1023){
     result[0] = 1023;
   } else if (result[0] < 100){
     result[0] = 100;
+  }
+  if (result[6] > 100){
+    result[6] = 100;
+  } else if (result[6] < 1){
+    result[6] = 1;
   }
 
 // dua 
@@ -105,6 +110,11 @@ float* calcTorque(movingData& data) {
   } else if (result[2] < 100){
     result[2] = 100;
   } 
+  if (result[7] > 100){
+    result[7] = 100;
+  } else if (result[7] < 1){
+    result[7] = 1;
+  }
 
 // tiga
   if (result[4] > 1023){
@@ -112,7 +122,11 @@ float* calcTorque(movingData& data) {
   } else if (result[4] < 100){
     result[4] = 100;
   }
-
+  if (result[8] > 100){
+    result[8] = 100;
+  } else if (result[8] < 1){
+    result[8] = 1;
+  }
   return result;
 }
 void actionMove(movingData& data){

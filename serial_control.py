@@ -174,8 +174,8 @@ class SerialControl:
             if tdata:
                 dt = datetime.now().strftime("%H:%M:%S")
                 data = json.loads(tdata)
-                signal.progress1.emit(f"{count}\t{dt}\t{data.get('satu')}\t{data.get('dua')}\t{data.get('tiga')}")
-                data_torque = [data.get('satu'), data.get('dua'), data.get('tiga')]
+                signal.progress1.emit(f"{count}\t{dt}\t{data.get('satu')}%\t{data.get('dua')}%\t{data.get('tiga')}%")
+                data_torque = [data.get('t1'), data.get('t2'), data.get('t3')]
                 signal.progress1_data.emit(data_torque)
                 signal.progress2.emit(f"{count}\t{dt}\t{data.get('fk1')}\t{data.get('fk2')}\t{data.get('fk3')}")
                 data_trajectory = [data.get('fk1'), data.get('fk2'), data.get('fk3')]

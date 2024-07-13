@@ -47,7 +47,7 @@ class Ui_MainWindow():
         self.mainWindow.setMinimumSize(359, 158)
         self.mainWindow.resize(359, 158)
         self.mainWindow.setMaximumSize(359, 158)
-        self.mainWindow.setWindowIcon(QIcon("icon-new.png"))
+        self.mainWindow.setWindowIcon(QIcon("icon-app.png"))
         self.actionTentang = QAction(self.mainWindow)
         self.actionTentang.setObjectName(u"actionTentang")
         self.actionTentang_2 = QAction(self.mainWindow)
@@ -300,7 +300,7 @@ class Ui_MainWindow():
         self.label_2 = QLabel(self.centralwidget)
         self.label_2.setObjectName(u"label_2")
         self.label_2.setGeometry(QRect(410, 440, 141, 151))
-        self.logo = QPixmap("new-logo.png")
+        self.logo = QPixmap("logo100crop.png")
         self.mainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self.mainWindow)
         self.menubar.setObjectName(u"menubar")
@@ -704,23 +704,23 @@ class Ui_MainWindow():
                             self.kurangiIterasi()
 
                     for x, value in zip(self.list_x_enabled, saved_data.get("trajectory").get("x")):
-                        precision = zeros_count(value)
+                        precision = zeros_count(float(value))
                         if precision > 0 and precision is not inf:
-                            x.setText(format(value, f'.{precision + 1}f'))
+                            x.setText(format(float(value), f'.{precision + 1}f'))
                         else:
                             x.setText(str(value))
 
                     for y, value in zip(self.list_y_enabled, saved_data.get("trajectory").get("y")):
-                        precision = zeros_count(value)
+                        precision = zeros_count(float(value))
                         if precision > 0 and precision is not inf:
-                            y.setText(format(value, f'.{precision + 1}f'))
+                            y.setText(format(float(value), f'.{precision + 1}f'))
                         else:
                             y.setText(str(value))
                     #
                     for z, value in zip(self.list_z_enabled, saved_data.get("trajectory").get("z")):
-                        precision = zeros_count(value)
+                        precision = zeros_count(float(value))
                         if precision > 0 and precision is not inf:
-                            z.setText(format(value, f'.{precision + 1}f'))
+                            z.setText(format(float(value), f'.{precision + 2}f'))
                         else:
                             z.setText(str(value))
 
@@ -751,16 +751,16 @@ class Ui_MainWindow():
                     "matrixGain": [self.inputMatrix_1.text().split(" "), self.inputMatrix_2.text().split(" "),
                                    self.inputMatrix_3.text().split(" ")],
                     "trajectory": {
-                        "x": [float(x.text()) for x in self.list_x_enabled],
-                        "y": [float(y.text()) for y in self.list_y_enabled],
-                        "z": [float(z.text()) for z in self.list_z_enabled]
+                        "x": [x.text() for x in self.list_x_enabled],
+                        "y": [y.text() for y in self.list_y_enabled],
+                        "z": [z.text() for z in self.list_z_enabled]
                     }
                 }
                 if self.checkBox_2.isChecked():
                     save_data.update({"gripper": "nan"})
                 else:
-                    save_data.update({'gripper': {'buka': self.comboBox_2.currentIndex(),
-                                                  'tutup': self.comboBox_4.currentIndex()}})
+                    save_data.update({'gripper': {'buka': self.comboBox_4.currentIndex(),
+                                                  'tutup': self.comboBox_2.currentIndex()}})
                 with open(file_name, "w") as f:
                     f.write(json.dumps(save_data, indent=4))
             else:
@@ -811,7 +811,7 @@ class PlotWindow(QMainWindow):
                 static_ax_list[i].set_ylabel('Trajectory')
                 if i == 2:
                     static_ax_list[0].set_title('Trajectory X')
-                    static_ax_list[1].set_title('TrajectorY Y')
+                    static_ax_list[1].set_title('Trajectory Y')
                     static_ax_list[2].set_title('Trajectory Z')
 
         else:

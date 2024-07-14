@@ -19,6 +19,10 @@ def zeros_count(decimal):
     return inf if decimal == 0 else -floor(log10(abs(decimal))) - 1
 
 
+def openManual():
+    webbrowser.open('https://github.com/maplezs/EWS_3_4A/blob/main/README.md', new=0)
+
+
 class Ui_MainWindow():
     def __init__(self, serial, MainWindow):
         super().__init__()
@@ -399,7 +403,8 @@ class Ui_MainWindow():
     def configureWidget(self):
         self.actionKeluar.setShortcut("Ctrl+Q")
         self.actionKeluar.triggered.connect(self.mainWindow.close)
-        self.actionTentang.triggered.connect(self.mainWindow.close)
+        self.actionTentang.triggered.connect(lambda: openManual())
+        self.actionTentang_2.triggered.connect(lambda: self.openAboutWindow())
         self.pushButton.clicked.connect(lambda: self.serial.serial_com_list(self))
         self.pushButton_2.clicked.connect(lambda: self.serial_connect())
         self.pushButton_3.clicked.connect(lambda: self.kurangiIterasi())
@@ -658,8 +663,8 @@ class Ui_MainWindow():
             self.pushButton_2.setGeometry(QRect(170, 60, 71, 31))
             self.comboBox.setGeometry(QRect(170, 30, 71, 22))
 
-    def openManual(self):
-        webbrowser.open('https://github.com/maplezs/EWS_3_4A/blob/main/README.md', new=0)
+    def openAboutWindow(self):
+        self.msgBox.about(None, "Robot Arm Control App", "Developed by Rafsanjani Nurul Irsyad - EWS_3_4A")
 
     def openFile(self):
         file_name, _ = QFileDialog.getOpenFileName(self.mainWindow, "Open File", "", "Text Files (*.txt)")

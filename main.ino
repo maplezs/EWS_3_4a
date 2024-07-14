@@ -1,17 +1,18 @@
+#define MAX_EASING_SERVOS 1
 #include <Dynamixel2Arduino.h>
 #include <ArduinoJson.h>
-#include <Servo.h>
+#include "ServoEasing.hpp"
 #define DXL_SERIAL   Serial1
 #define DEBUG_SERIAL Serial
 #define DEG_TO_RAD 0.017453292519943295769236907684886
 const int DXL_DIR_PIN = 51; 
 const int DXL_ID_ONE = 7; 
 const int DXL_ID_TWO = 2; 
-const int DXL_ID_THREE = 3; 
+const int DXL_ID_THREE = 1; 
 const float DXL_PROTOCOL_VERSION = 1.0;
 Dynamixel2Arduino dxl(DXL_SERIAL, DXL_DIR_PIN);
 using namespace ControlTableItem;
-Servo gripper;
+ServoEasing gripper;
 float gain1[6];
 float gain2[6];
 float gain3[6];
@@ -20,19 +21,9 @@ struct movingData {
   float theta[3];
   float current[3];
   float target[3];
-  uint16_t readTorque[3];
   int loopLen;
 };
-void gripperAction(String action){
-  if (action == "buka") {
-    gripper.write(10);
-    delay(1000);
-  } else {
-    gripper.write(120);
-    delay(1000);
-  }
-}
-
+movingData data;
 void movingStatusCheck(float torque_2, float torque_3, float goal_2, float goal_3) {
   int movingStatus = 1;
   uint8_t moving_returned_one;
@@ -44,17 +35,17 @@ void movingStatusCheck(float torque_2, float torque_3, float goal_2, float goal_
     dxl.read(DXL_ID_THREE, 46, 1, (uint8_t*)&moving_returned_three, sizeof(moving_returned_three), 10);
     if (!moving_returned_one && !moving_returned_two && !moving_returned_three) {
       movingStatus = 0;
-      delay(500);
+      delay(100);
       dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_TWO, torque_2);
       dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_THREE, torque_3);
-      delay(100);
+      delay(500);
       dxl.setGoalPosition(DXL_ID_TWO, goal_2, UNIT_DEGREE);
       dxl.setGoalPosition(DXL_ID_THREE, goal_3, UNIT_DEGREE);
     }
   }
 }
 
-float* calcForwardKinematic(movingData& data) {
+float* calcForwardKinematic() {
   static float resultFK[3];
   data.current[0] *= DEG_TO_RAD;
   data.current[1] *= DEG_TO_RAD;
@@ -72,7 +63,7 @@ float* calcForwardKinematic(movingData& data) {
   return resultFK;
 }
 
-float* calcTorque(movingData& data) {
+float* calcTorque() {
   static float result[9];
   data.current[0] *= DEG_TO_RAD;
   data.current[1] *= DEG_TO_RAD;
@@ -129,7 +120,7 @@ float* calcTorque(movingData& data) {
   }
   return result;
 }
-void actionMove(movingData& data){
+void actionMove(){
   JsonDocument doc1;
   data.target[0] = doc["targetInRad"]["rad1"][data.loopLen].as<float>();
   data.target[1] = doc["targetInRad"]["rad2"][data.loopLen].as<float>();
@@ -139,7 +130,7 @@ void actionMove(movingData& data){
   data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
   data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
   
-  float* result = calcTorque(data);
+  float* result = calcTorque();
 
   dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_ONE, result[0]);
   dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_TWO, result[2]);
@@ -147,20 +138,18 @@ void actionMove(movingData& data){
 
   if(doc["gripper"]){
     if (doc["gripper"]["buka"].as<signed int>() == data.loopLen) {
-        gripperAction("buka");
+        gripper.startEaseTo(10);
+        delay(500);
     }
     if (doc["gripper"]["tutup"].as<signed int>() == data.loopLen) {
-          gripperAction("tutup");
+        gripper.startEaseTo(50);
+        delay(500);
     }
   }
 
-  dxl.read(DXL_ID_ONE, 34, 2, (uint8_t*)&data.readTorque[0], sizeof(data.readTorque[0]), 10);
-  dxl.read(DXL_ID_TWO, 34, 2, (uint8_t*)&data.readTorque[1], sizeof(data.readTorque[1]), 10);
-  dxl.read(DXL_ID_THREE, 34, 2, (uint8_t*)&data.readTorque[2], sizeof(data.readTorque[2]), 10);
-
-  doc1["satu"] = data.readTorque[0];
-  doc1["dua"] = data.readTorque[1];
-  doc1["tiga"] = data.readTorque[2];
+  doc1["satu"] = result[6];
+  doc1["dua"] = result[7];
+  doc1["tiga"] = result[8];
 
   doc1["t1"] = result[1];
   doc1["t2"] = result[3];
@@ -176,7 +165,7 @@ void actionMove(movingData& data){
   data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
   data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
 
-  float* resultFK = calcForwardKinematic(data);
+  float* resultFK = calcForwardKinematic();
 
   doc1["fk1"] = resultFK[0];
   doc1["fk2"] = resultFK[1];
@@ -195,8 +184,8 @@ void setup() {
   dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_ONE, 512);
   dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_TWO, 512);
   dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_THREE, 512);
-  gripper.attach(7);
-  gripper.write(10);
+  gripper.attach(7, 10);
+  gripper.setSpeed(200); 
   delay(1000);
   dxl.setGoalPosition(DXL_ID_ONE, 150.0, UNIT_DEGREE);
   dxl.setGoalPosition(DXL_ID_TWO, 100, UNIT_DEGREE);
@@ -222,13 +211,12 @@ void loop() {
           gain2[i] = doc["matrixGain"]["dua"][i].as<float>();
           gain3[i] = doc["matrixGain"]["tiga"][i].as<float>();
         }
-        movingData data;
         for(int i = 0; i < doc["thetaLen"].as<signed int>(); i++){
           data.theta[0] = doc["theta"]["satu"][i].as<float>();
           data.theta[1] = doc["theta"]["dua"][i].as<float>();
           data.theta[2] = doc["theta"]["tiga"][i].as<float>();
           data.loopLen = i;
-          actionMove(data);
+          actionMove();
         }
         doc.clear();
       }

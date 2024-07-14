@@ -1,6 +1,6 @@
 import json
 import sys
-
+import webbrowser
 from math import floor, log10, inf
 from PyQt6.QtCore import (QCoreApplication, QMetaObject, QObject, QRect, pyqtSignal, QThread)
 from PyQt6.QtGui import QAction, QResizeEvent, QIcon, QPixmap
@@ -399,6 +399,7 @@ class Ui_MainWindow():
     def configureWidget(self):
         self.actionKeluar.setShortcut("Ctrl+Q")
         self.actionKeluar.triggered.connect(self.mainWindow.close)
+        self.actionTentang.triggered.connect(self.mainWindow.close)
         self.pushButton.clicked.connect(lambda: self.serial.serial_com_list(self))
         self.pushButton_2.clicked.connect(lambda: self.serial_connect())
         self.pushButton_3.clicked.connect(lambda: self.kurangiIterasi())
@@ -657,6 +658,9 @@ class Ui_MainWindow():
             self.pushButton_2.setGeometry(QRect(170, 60, 71, 31))
             self.comboBox.setGeometry(QRect(170, 30, 71, 22))
 
+    def openManual(self):
+        webbrowser.open('https://github.com/maplezs/EWS_3_4A/blob/main/README.md', new=0)
+
     def openFile(self):
         file_name, _ = QFileDialog.getOpenFileName(self.mainWindow, "Open File", "", "Text Files (*.txt)")
         if file_name:
@@ -678,7 +682,7 @@ class Ui_MainWindow():
                     self.list_x_disabled.clear()
                     self.list_y_disabled.clear()
                     self.list_z_disabled.clear()
-                    
+
                     [x.setEnabled(True) for x in self.list_x_disabled]
                     [y.setEnabled(True) for y in self.list_y_disabled]
                     [z.setEnabled(True) for z in self.list_z_disabled]
@@ -720,7 +724,7 @@ class Ui_MainWindow():
                     for z, value in zip(self.list_z_enabled, saved_data.get("trajectory").get("z")):
                         precision = zeros_count(float(value))
                         if precision > 0 and precision is not inf:
-                            z.setText(format(float(value), f'.{precision + 2}f'))
+                            z.setText(format(float(value), f'.{precision + 3}f'))
                         else:
                             z.setText(str(value))
 
@@ -803,9 +807,9 @@ class PlotWindow(QMainWindow):
         print(data)
         if tipe == "Trajektori":
             for i in range(len(static_ax_list)):
-                static_ax_list[i].plot(range(1, data[2]+1), data[0][i], label='Referensi')
+                static_ax_list[i].plot(range(1, data[2] + 1), data[0][i], label='Referensi')
                 static_ax_list[i].legend()
-                static_ax_list[i].plot(range(1, data[2]+1), data[1][i], label='Aktual')
+                static_ax_list[i].plot(range(1, data[2] + 1), data[1][i], label='Aktual')
                 static_ax_list[i].legend()
                 static_ax_list[i].set_xlabel('Iterasi')
                 static_ax_list[i].set_ylabel('Trajectory')
@@ -816,7 +820,7 @@ class PlotWindow(QMainWindow):
 
         else:
             for i in range(len(static_ax_list)):
-                static_ax_list[i].plot(range(1, data[1]+1), data[0][i])
+                static_ax_list[i].plot(range(1, data[1] + 1), data[0][i])
                 static_ax_list[i].set_xlabel('Iterasi')
                 static_ax_list[i].set_ylabel('Torsi')
                 if i == 2:

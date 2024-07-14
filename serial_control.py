@@ -50,7 +50,6 @@ class SerialControl:
                     self.ser.status = True
                     self.open = True
                 else:
-                    print("tes")
                     gui.msgBox.setIcon(self.msgBox.icon().Warning)
                     gui.msgBox.setText(f"Gagal terhubung ke port {self.comboBox.currentText()}")
                     gui.msgBox.exec()

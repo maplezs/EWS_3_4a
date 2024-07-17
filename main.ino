@@ -1,7 +1,6 @@
-#define MAX_EASING_SERVOS 1
 #include <Dynamixel2Arduino.h>
 #include <ArduinoJson.h>
-#include "ServoEasing.hpp"
+#include <Servo.h>
 #define DXL_SERIAL   Serial1
 #define DEBUG_SERIAL Serial
 #define DEG_TO_RAD 0.017453292519943295769236907684886
@@ -12,7 +11,7 @@ const int DXL_ID_THREE = 1;
 const float DXL_PROTOCOL_VERSION = 1.0;
 Dynamixel2Arduino dxl(DXL_SERIAL, DXL_DIR_PIN);
 using namespace ControlTableItem;
-ServoEasing gripper;
+Servo gripper;
 float gain1[6];
 float gain2[6];
 float gain3[6];
@@ -24,7 +23,14 @@ struct movingData {
   int loopLen;
 };
 movingData data;
-void movingStatusCheck(float torque_2, float torque_3, float goal_2, float goal_3) {
+const unsigned long gripperEventInterval = 500;
+const unsigned long setupEventInterval = 1000;
+const unsigned long dataEventInterval = 100;
+const unsigned long moveEventInterval = 250;
+const unsigned long initialMoveEventInterval = 250;
+unsigned long previousTime = 0;
+unsigned long currentTime = 0;
+void movingStatusCheck(float torque_1, float torque_2, float torque_3, float goal_1, float goal_2, float goal_3) {
   int movingStatus = 1;
   uint8_t moving_returned_one;
   uint8_t moving_returned_two;
@@ -35,27 +41,51 @@ void movingStatusCheck(float torque_2, float torque_3, float goal_2, float goal_
     dxl.read(DXL_ID_THREE, 46, 1, (uint8_t*)&moving_returned_three, sizeof(moving_returned_three), 10);
     if (!moving_returned_one && !moving_returned_two && !moving_returned_three) {
       movingStatus = 0;
-      delay(100);
+      currentTime = millis();
+      while(currentTime - previousTime < initialMoveEventInterval){
+        currentTime = millis();
+      }
+      previousTime = currentTime;
+      dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_ONE, torque_1);
       dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_TWO, torque_2);
       dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_THREE, torque_3);
-      delay(500);
+      currentTime = millis();
+      while(currentTime - previousTime < moveEventInterval){
+        currentTime = millis();
+      }
+      previousTime = currentTime;
+      dxl.setGoalPosition(DXL_ID_ONE, goal_1, UNIT_DEGREE);
       dxl.setGoalPosition(DXL_ID_TWO, goal_2, UNIT_DEGREE);
       dxl.setGoalPosition(DXL_ID_THREE, goal_3, UNIT_DEGREE);
+      while(currentTime - previousTime < moveEventInterval){
+        currentTime = millis();
+      }
+      previousTime = currentTime;
+      for (int i=0;i < 4;i++){
+        data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE)  - 150;
+        data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
+        data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
+        currentTime = millis();
+        while(currentTime - previousTime < dataEventInterval){
+        currentTime = millis();
+      }
+      previousTime = currentTime;
+      }
     }
   }
 }
 
 float* calcForwardKinematic() {
   static float resultFK[3];
-  data.current[0] *= DEG_TO_RAD;
-  data.current[1] *= DEG_TO_RAD;
-  data.current[2] *= DEG_TO_RAD;
+  float curr1 = data.current[0] * DEG_TO_RAD;
+  float curr2 = data.current[1] * DEG_TO_RAD;
+  float curr3 = data.current[2] * DEG_TO_RAD;
   float l1 = 0.145;
   float l2 = 0.15;
   float l3 = 0.18;
-  float x = (l3*cos(data.current[1]-data.current[2])+l2*cos(data.current[1]))*cos(data.current[0]);
-  float y = (l3*cos(data.current[1]-data.current[2])+l2*cos(data.current[1]))*sin(data.current[0]);
-  float z = l3*sin(data.current[1]-data.current[2])+l2*sin(data.current[1])+l1;
+  float x = (l3*cos(curr2-curr3)+l2*cos(curr2))*cos(curr1);
+  float y = (l3*cos(curr2-curr3)+l2*cos(curr2))*sin(curr1);
+  float z = l3*sin(curr2-curr3)+l2*sin(curr2)+l1;
   resultFK[0] = abs(x);
   resultFK[1] = y;
   resultFK[2] = abs(z);
@@ -65,13 +95,13 @@ float* calcForwardKinematic() {
 
 float* calcTorque() {
   static float result[9];
-  data.current[0] *= DEG_TO_RAD;
-  data.current[1] *= DEG_TO_RAD;
-  data.current[2] *= DEG_TO_RAD;
+  float curr1 = data.current[0] * DEG_TO_RAD;
+  float curr2 = data.current[1] * DEG_TO_RAD;
+  float curr3 = data.current[2] * DEG_TO_RAD;
 
-  float torsi1 = (-gain1[0] * data.target[0]) + (-gain1[1] * data.target[1]) + (-gain1[2] * data.target[2]) + (-gain1[3] * (data.target[0] - data.current[0])) + (-gain1[4] * (data.target[1] - data.current[1])) + (-gain1[5] * (data.target[2] - data.current[2]));
-  float torsi2 = (-gain2[0] * data.target[0]) + (-gain2[1] * data.target[1]) + (-gain2[2] * data.target[2]) + (-gain2[3] * (data.target[0] - data.current[0])) + (-gain2[4] * (data.target[1] - data.current[1])) + (-gain2[5] * (data.target[2] - data.current[2]));
-  float torsi3 = (-gain3[0] * data.target[0]) + (-gain3[1] * data.target[1]) + (-gain3[2] * data.target[2]) + (-gain3[3] * (data.target[0] - data.current[0])) + (-gain3[4] * (data.target[1] - data.current[1])) + (-gain3[5] * (data.target[2] - data.current[2]));
+  float torsi1 = (-gain1[0] * data.target[0]) + (-gain1[1] * data.target[1]) + (-gain1[2] * data.target[2]) + (-gain1[3] * (data.target[0] - curr1)) + (-gain1[4] * (data.target[1] - curr2)) + (-gain1[5] * (data.target[2] - curr3));
+  float torsi2 = (-gain2[0] * data.target[0]) + (-gain2[1] * data.target[1]) + (-gain2[2] * data.target[2]) + (-gain2[3] * (data.target[0] - curr1)) + (-gain2[4] * (data.target[1] - curr2)) + (-gain2[5] * (data.target[2] - curr3));
+  float torsi3 = (-gain3[0] * data.target[0]) + (-gain3[1] * data.target[1]) + (-gain3[2] * data.target[2]) + (-gain3[3] * (data.target[0] - curr1)) + (-gain3[4] * (data.target[1] - curr2)) + (-gain3[5] * (data.target[2] - curr3));
   
   result[0] = ceil(abs(torsi1 * (1023 / 1.5)));
   result[1] = abs(torsi1);
@@ -89,6 +119,9 @@ float* calcTorque() {
   } else if (result[0] < 100){
     result[0] = 100;
   }
+  if (result[1] > 1.5){
+    result[1] = 1.5;
+  }
   if (result[6] > 100){
     result[6] = 100;
   } else if (result[6] < 1){
@@ -100,8 +133,11 @@ float* calcTorque() {
     result[2] = 1023;
   } else if (result[2] < 100){
     result[2] = 100;
+  }
+  if (result[3] > 1.5){
+    result[3] = 1.5;
   } 
-  if (result[7] > 100){
+  if (result[7] > 100){ 
     result[7] = 100;
   } else if (result[7] < 1){
     result[7] = 1;
@@ -113,6 +149,9 @@ float* calcTorque() {
   } else if (result[4] < 100){
     result[4] = 100;
   }
+  if (result[5] > 1.5){
+    result[5] = 1.5;
+  }
   if (result[8] > 100){
     result[8] = 100;
   } else if (result[8] < 1){
@@ -120,30 +159,40 @@ float* calcTorque() {
   }
   return result;
 }
+
 void actionMove(){
   JsonDocument doc1;
   data.target[0] = doc["targetInRad"]["rad1"][data.loopLen].as<float>();
   data.target[1] = doc["targetInRad"]["rad2"][data.loopLen].as<float>();
   data.target[2] = doc["targetInRad"]["rad3"][data.loopLen].as<float>();
+  if (data.loopLen == 0){
+    data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE)  - 150;
+    data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
+    data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
+  }
 
-  data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE)  - 150;
-  data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
-  data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
   
   float* result = calcTorque();
 
   dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_ONE, result[0]);
   dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_TWO, result[2]);
   dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_THREE, result[4]);
-
   if(doc["gripper"]){
     if (doc["gripper"]["buka"].as<signed int>() == data.loopLen) {
-        gripper.startEaseTo(10);
-        delay(500);
-    }
+        gripper.write(10);
+        currentTime = millis();
+        while(currentTime - previousTime < gripperEventInterval){
+          currentTime = millis();
+        }
+        previousTime = currentTime;
+      }
     if (doc["gripper"]["tutup"].as<signed int>() == data.loopLen) {
-        gripper.startEaseTo(50);
-        delay(500);
+        gripper.write(51);
+        currentTime = millis();
+        while(currentTime - previousTime < gripperEventInterval){
+          currentTime = millis();
+      }
+      previousTime = currentTime;
     }
   }
 
@@ -159,13 +208,21 @@ void actionMove(){
   dxl.setGoalPosition(DXL_ID_TWO, data.theta[1], UNIT_DEGREE);
   dxl.setGoalPosition(DXL_ID_THREE, data.theta[2], UNIT_DEGREE);
 
-  movingStatusCheck(result[2], result[4], data.theta[1], data.theta[2]);
+  movingStatusCheck(result[0], result[2], result[4], data.theta[0], data.theta[1], data.theta[2]);
 
-  data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE)  - 150;
-  data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
-  data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
+  for (int i=0;i < 4;i++){
+    data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE)  - 150;
+    data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
+    data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
+    currentTime = millis();
+    while(currentTime - previousTime < dataEventInterval){
+      currentTime = millis();
+    }
+    previousTime = currentTime;
+  }
 
   float* resultFK = calcForwardKinematic();
+
 
   doc1["fk1"] = resultFK[0];
   doc1["fk2"] = resultFK[1];
@@ -184,9 +241,13 @@ void setup() {
   dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_ONE, 512);
   dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_TWO, 512);
   dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_THREE, 512);
-  gripper.attach(7, 10);
-  gripper.setSpeed(200); 
-  delay(1000);
+  gripper.attach(7);
+  gripper.write(10);
+  currentTime = millis();
+  while(currentTime - previousTime < setupEventInterval){
+    currentTime = millis();
+  }
+  previousTime = currentTime;
   dxl.setGoalPosition(DXL_ID_ONE, 150.0, UNIT_DEGREE);
   dxl.setGoalPosition(DXL_ID_TWO, 100, UNIT_DEGREE);
   dxl.setGoalPosition(DXL_ID_THREE, 51, UNIT_DEGREE);

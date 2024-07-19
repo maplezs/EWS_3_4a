@@ -1,9 +1,10 @@
+#define MAX_EASING_SERVOS 1
+#include <Arduino.h>
 #include <Dynamixel2Arduino.h>
 #include <ArduinoJson.h>
-#include <Servo.h>
+#include "ServoEasing.hpp"
 #define DXL_SERIAL   Serial1
 #define DEBUG_SERIAL Serial
-#define DEG_TO_RAD 0.017453292519943295769236907684886
 const int DXL_DIR_PIN = 51; 
 const int DXL_ID_ONE = 7; 
 const int DXL_ID_TWO = 2; 
@@ -11,23 +12,26 @@ const int DXL_ID_THREE = 1;
 const float DXL_PROTOCOL_VERSION = 1.0;
 Dynamixel2Arduino dxl(DXL_SERIAL, DXL_DIR_PIN);
 using namespace ControlTableItem;
-Servo gripper;
+ServoEasing gripper;
 float gain1[6];
 float gain2[6];
 float gain3[6];
 JsonDocument doc;
 struct movingData {
   float theta[3];
+  float prevTheta[3];
   float current[3];
   float target[3];
   int loopLen;
 };
+float curr3tmp;
+float curr2tmp;
 movingData data;
 const unsigned long gripperEventInterval = 500;
 const unsigned long setupEventInterval = 1000;
 const unsigned long dataEventInterval = 100;
-const unsigned long moveEventInterval = 250;
-const unsigned long initialMoveEventInterval = 250;
+const unsigned long moveEventInterval = 1000;
+const unsigned long initialMoveEventInterval = 100;
 unsigned long previousTime = 0;
 unsigned long currentTime = 0;
 void movingStatusCheck(float torque_1, float torque_2, float torque_3, float goal_1, float goal_2, float goal_3) {
@@ -40,7 +44,9 @@ void movingStatusCheck(float torque_1, float torque_2, float torque_3, float goa
     dxl.read(DXL_ID_TWO, 46, 1, (uint8_t*)&moving_returned_two, sizeof(moving_returned_two), 10);
     dxl.read(DXL_ID_THREE, 46, 1, (uint8_t*)&moving_returned_three, sizeof(moving_returned_three), 10);
     if (!moving_returned_one && !moving_returned_two && !moving_returned_three) {
-      movingStatus = 0;
+      dxl.setGoalPosition(DXL_ID_ONE, goal_1, UNIT_DEGREE);
+      dxl.setGoalPosition(DXL_ID_TWO, goal_2, UNIT_DEGREE);
+      dxl.setGoalPosition(DXL_ID_THREE, goal_3, UNIT_DEGREE);
       currentTime = millis();
       while(currentTime - previousTime < initialMoveEventInterval){
         currentTime = millis();
@@ -50,27 +56,19 @@ void movingStatusCheck(float torque_1, float torque_2, float torque_3, float goa
       dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_TWO, torque_2);
       dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_THREE, torque_3);
       currentTime = millis();
-      while(currentTime - previousTime < moveEventInterval){
+      while(currentTime - previousTime < initialMoveEventInterval){
         currentTime = millis();
       }
       previousTime = currentTime;
       dxl.setGoalPosition(DXL_ID_ONE, goal_1, UNIT_DEGREE);
       dxl.setGoalPosition(DXL_ID_TWO, goal_2, UNIT_DEGREE);
       dxl.setGoalPosition(DXL_ID_THREE, goal_3, UNIT_DEGREE);
+      currentTime = millis();
       while(currentTime - previousTime < moveEventInterval){
         currentTime = millis();
       }
       previousTime = currentTime;
-      for (int i=0;i < 4;i++){
-        data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE)  - 150;
-        data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
-        data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
-        currentTime = millis();
-        while(currentTime - previousTime < dataEventInterval){
-        currentTime = millis();
-      }
-      previousTime = currentTime;
-      }
+      movingStatus = 0;
     }
   }
 }
@@ -165,21 +163,68 @@ void actionMove(){
   data.target[0] = doc["targetInRad"]["rad1"][data.loopLen].as<float>();
   data.target[1] = doc["targetInRad"]["rad2"][data.loopLen].as<float>();
   data.target[2] = doc["targetInRad"]["rad3"][data.loopLen].as<float>();
+
   if (data.loopLen == 0){
-    data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE)  - 150;
+    data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE) - 150;
     data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
     data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
-  }
+  } else {
+    float limitTheta1 = data.prevTheta[0] - 150;
+    float limitTheta2 = 190 - data.prevTheta[1];
+    float limitTheta3 = 150 - data.prevTheta[2];
 
-  
+    if (limitTheta1 == 0){
+      data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE) - 150;
+    } else {
+      data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE) - 150;
+      while (data.current[0] > limitTheta1 + 4)
+      {
+        data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE) - 150;
+      }
+      while (data.current[0] < limitTheta1 - 4)
+      {
+        data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE) - 150;
+      }
+    }
+
+    if (limitTheta2 == 0){
+      data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
+    } else {
+      data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
+      while (data.current[1] > limitTheta2 + 4)
+      {
+        data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
+      }
+      while (data.current[1] < limitTheta2 - 4)
+      {
+        data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
+      }
+    }
+
+    if (limitTheta2 == 0){
+      data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
+    } else {
+      data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
+      while (data.current[2] > limitTheta3 + 4)
+      {
+        data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
+      }
+      while (data.current[2] < limitTheta3 - 4)
+      {
+        data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
+      }
+    }  
+  }
+   
   float* result = calcTorque();
 
   dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_ONE, result[0]);
   dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_TWO, result[2]);
   dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_THREE, result[4]);
+
   if(doc["gripper"]){
     if (doc["gripper"]["buka"].as<signed int>() == data.loopLen) {
-        gripper.write(10);
+        gripper.startEaseTo(10);
         currentTime = millis();
         while(currentTime - previousTime < gripperEventInterval){
           currentTime = millis();
@@ -187,7 +232,7 @@ void actionMove(){
         previousTime = currentTime;
       }
     if (doc["gripper"]["tutup"].as<signed int>() == data.loopLen) {
-        gripper.write(51);
+        gripper.startEaseTo(45);
         currentTime = millis();
         while(currentTime - previousTime < gripperEventInterval){
           currentTime = millis();
@@ -210,26 +255,52 @@ void actionMove(){
 
   movingStatusCheck(result[0], result[2], result[4], data.theta[0], data.theta[1], data.theta[2]);
 
-  for (int i=0;i < 4;i++){
-    data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE)  - 150;
+  if (data.loopLen != 0){
+    data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE) - 150;
+    currentTime = millis();
+    while(data.current[0] == 0 || data.current[0] > 90 || data.current[0] < -90){
+      data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE) - 150;
+      while(currentTime - previousTime < dataEventInterval){
+          currentTime = millis();
+        }
+      previousTime = currentTime;
+    }
+
     data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
+    currentTime = millis();
+    while(data.current[1] == 0 || data.current[1] > 190 || data.current[1] < 0){
+      data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
+        while(currentTime - previousTime < dataEventInterval){
+          currentTime = millis();
+        }
+      previousTime = currentTime;
+    }
+
     data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
     currentTime = millis();
-    while(currentTime - previousTime < dataEventInterval){
-      currentTime = millis();
+    while(data.current[2] == 0 || data.current[2] > 150 || data.current[2] < 0){
+      data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
+        while(currentTime - previousTime < dataEventInterval){
+          currentTime = millis();
+        }
+      previousTime = currentTime;
     }
-    previousTime = currentTime;
+  } else {
+    data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE) - 150;
+    data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
+    data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
   }
 
   float* resultFK = calcForwardKinematic();
 
-
   doc1["fk1"] = resultFK[0];
   doc1["fk2"] = resultFK[1];
   doc1["fk3"] = resultFK[2];
+  
   if (data.loopLen == doc["thetaLen"].as<signed int>() - 1){
     doc1["done"] = true;
   }
+
   serializeJson(doc1, DEBUG_SERIAL);
   doc1.clear();
 }
@@ -241,8 +312,8 @@ void setup() {
   dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_ONE, 512);
   dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_TWO, 512);
   dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_THREE, 512);
-  gripper.attach(7);
-  gripper.write(10);
+  gripper.attach(7, 10);
+  gripper.setSpeed(200); 
   currentTime = millis();
   while(currentTime - previousTime < setupEventInterval){
     currentTime = millis();
@@ -273,9 +344,18 @@ void loop() {
           gain3[i] = doc["matrixGain"]["tiga"][i].as<float>();
         }
         for(int i = 0; i < doc["thetaLen"].as<signed int>(); i++){
-          data.theta[0] = doc["theta"]["satu"][i].as<float>();
-          data.theta[1] = doc["theta"]["dua"][i].as<float>();
-          data.theta[2] = doc["theta"]["tiga"][i].as<float>();
+          if (i == 0 ){
+            data.theta[0] = doc["theta"]["satu"][i].as<float>();
+            data.theta[1] = doc["theta"]["dua"][i].as<float>();
+            data.theta[2] = doc["theta"]["tiga"][i].as<float>();
+          } else {
+            data.theta[0] = doc["theta"]["satu"][i].as<float>();
+            data.theta[1] = doc["theta"]["dua"][i].as<float>();
+            data.theta[2] = doc["theta"]["tiga"][i].as<float>();
+            data.prevTheta[0] = doc["theta"]["satu"][i - 1].as<float>();
+            data.prevTheta[1] = doc["theta"]["dua"][i - 1].as<float>();
+            data.prevTheta[2] = doc["theta"]["tiga"][i - 1].as<float>();
+          }       
           data.loopLen = i;
           actionMove();
         }

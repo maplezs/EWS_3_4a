@@ -30,7 +30,7 @@ movingData data;
 const unsigned long gripperEventInterval = 500;
 const unsigned long setupEventInterval = 1000;
 const unsigned long dataEventInterval = 100;
-const unsigned long moveEventInterval = 1000;
+const unsigned long moveEventInterval = 500;
 const unsigned long initialMoveEventInterval = 100;
 unsigned long previousTime = 0;
 unsigned long currentTime = 0;
@@ -172,50 +172,31 @@ void actionMove(){
     float limitTheta1 = data.prevTheta[0] - 150;
     float limitTheta2 = 190 - data.prevTheta[1];
     float limitTheta3 = 150 - data.prevTheta[2];
-
     if (limitTheta1 == 0){
       data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE) - 150;
     } else {
-      data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE) - 150;
-      while (data.current[0] > limitTheta1 + 4)
-      {
+      do {
         data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE) - 150;
-      }
-      while (data.current[0] < limitTheta1 - 4)
-      {
-        data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE) - 150;
-      }
+      } while (data.current[0] < limitTheta1 - 4 || data.current[0] > limitTheta1 + 4);
     }
 
     if (limitTheta2 == 0){
       data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
     } else {
-      data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
-      while (data.current[1] > limitTheta2 + 4)
-      {
+      do {
         data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
-      }
-      while (data.current[1] < limitTheta2 - 4)
-      {
-        data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
-      }
+      } while (data.current[1] < limitTheta2 - 4 || data.current[1] > limitTheta2 + 4);
     }
 
-    if (limitTheta2 == 0){
+    if (limitTheta3 == 0){
       data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
     } else {
-      data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
-      while (data.current[2] > limitTheta3 + 4)
-      {
+      do {
         data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
-      }
-      while (data.current[2] < limitTheta3 - 4)
-      {
-        data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
-      }
+      } while (data.current[2] < limitTheta3 - 4 || data.current[2] > limitTheta3 + 4);
     }  
   }
-   
+  
   float* result = calcTorque();
 
   dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_ONE, result[0]);
@@ -232,7 +213,7 @@ void actionMove(){
         previousTime = currentTime;
       }
     if (doc["gripper"]["tutup"].as<signed int>() == data.loopLen) {
-        gripper.startEaseTo(45);
+        gripper.startEaseTo(22);
         currentTime = millis();
         while(currentTime - previousTime < gripperEventInterval){
           currentTime = millis();
@@ -257,32 +238,32 @@ void actionMove(){
 
   if (data.loopLen != 0){
     data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE) - 150;
-    currentTime = millis();
-    while(data.current[0] == 0 || data.current[0] > 90 || data.current[0] < -90){
+    while(data.current[0] == 0 || data.current[0] > 93 || data.current[0] < -93){
       data.current[0] = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE) - 150;
+      currentTime = millis();
       while(currentTime - previousTime < dataEventInterval){
-          currentTime = millis();
-        }
+        currentTime = millis();
+      }
       previousTime = currentTime;
     }
 
     data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
-    currentTime = millis();
-    while(data.current[1] == 0 || data.current[1] > 190 || data.current[1] < 0){
+    while(data.current[1] == 0 || data.current[1] > 193 || data.current[1] < -3){
       data.current[1] = 190 - dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
-        while(currentTime - previousTime < dataEventInterval){
-          currentTime = millis();
-        }
+      currentTime = millis();
+      while(currentTime - previousTime < dataEventInterval){
+        currentTime = millis();
+      }
       previousTime = currentTime;
     }
 
     data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
-    currentTime = millis();
-    while(data.current[2] == 0 || data.current[2] > 150 || data.current[2] < 0){
+    while(data.current[2] == 0 || data.current[2] > 153 || data.current[2] < -3){
       data.current[2] = 150 - dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
-        while(currentTime - previousTime < dataEventInterval){
-          currentTime = millis();
-        }
+      currentTime = millis();
+      while(currentTime - previousTime < dataEventInterval){
+        currentTime = millis();
+      }
       previousTime = currentTime;
     }
   } else {

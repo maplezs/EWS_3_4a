@@ -16,7 +16,7 @@ from matplotlib.backends.backend_qtagg import \
     NavigationToolbar2QT as NavigationToolbar
 from matplotlib.backends.qt_compat import QtWidgets
 from matplotlib.figure import Figure
-from SerialControl import SerialControl
+from serial_control import SerialControl
 
 
 def zeros_count(decimal):
@@ -401,7 +401,7 @@ class Ui_MainWindow():
         self.actionKeluar.triggered.connect(self.mainWindow.close)
         self.actionTentang.triggered.connect(lambda: openManual())
         self.actionTentang_2.triggered.connect(lambda: self.openAboutWindow())
-        self.pushButton.clicked.connect(lambda: self.serial.serial_com_list(self))
+        self.pushButton.clicked.connect(lambda: self.serial.serialListPort(self))
         self.pushButton_2.clicked.connect(lambda: self.serialConnect())
         self.pushButton_3.clicked.connect(lambda: self.kurangiIterasi())
         self.pushButton_4.clicked.connect(lambda: self.tambahIterasi())
@@ -412,31 +412,12 @@ class Ui_MainWindow():
         self.pushButton_9.clicked.connect(lambda: self.plotWindow("Trajektori", self.data_trajectory_input,
                                                                   self.data_trajectory))
         self.pushButton_10.clicked.connect(lambda: self.saveCSVFile())
-        # self.dataTrajectoryTestX = [1,2,3,4,5,6,7]
-        # self.dataTrajectoryTestY = [7,6,5,4,3,2,1]
-        # self.dataTrajectoryTestZ = [2,3,4,5,6,7,1]
-        # self.dataTrajectoryTestXAktual = [0.821, 1.975, 3.456, 4.567, 5.678, 6.789, 7.889]
-        # self.dataTrajectoryTestYAktual = [6.789, 5.678, 4.567, 3.456, 2.345, 1.234, 0.123]
-        # self.dataTrajectoryTestZAktual = [1.123, 2.987, 3.789, 4.678, 5.777, 6.888, 0.999]
-        # self.dataTrajectoryTestReferensi = [self.dataTrajectoryTestX, self.dataTrajectoryTestY,
-        #                                     self.dataTrajectoryTestZ]
-        # self.dataTrajectoryTestAktual = [self.dataTrajectoryTestXAktual, self.dataTrajectoryTestYAktual,
-        #                                     self.dataTrajectoryTestZAktual]
-        # self.pushButton_9.clicked.connect(lambda: self.plotWindow("Trajektori",
-        #                                                           self.dataTrajectoryTestReferensi,
-        #                                                           self.dataTrajectoryTestAktual))
-        #
-        # self.dataTorque1 = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
-        # self.dataTorque2 = [0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
-        # self.dataTorque3 = [1.1, 1.2, 1.3, 1.4, 1.5, 0.9, 1]
-        # self.dataTorquex = [self.dataTorque1, self.dataTorque2, self.dataTorque3]
-        # self.pushButton_8.clicked.connect(lambda: self.plotWindow("Torsi", self.dataTorquex))
 
-        self.checkBox_2.stateChanged.connect(lambda: self.toogle_checkbox_2())
+        self.checkBox_2.stateChanged.connect(lambda: self.checkBoxToogle())
         self.plainTextEdit.setReadOnly(True)
         self.plainTextEdit_2.setReadOnly(True)
         # initial port listing
-        self.serial.serial_com_list(self)
+        self.serial.serialListPort(self)
         self.list_x = [self.x0, self.x1, self.x2, self.x3, self.x4, self.x5, self.x6]
         self.list_y = [self.y0, self.y1, self.y2, self.y3, self.y4, self.y5, self.y6]
         self.list_z = [self.z0, self.z1, self.z2, self.z3, self.z4, self.z5, self.z6]
@@ -492,7 +473,7 @@ class Ui_MainWindow():
         if len(self.list_x_enabled) == 7:
             self.pushButton_4.setEnabled(False)
 
-    def check_gripper(self):
+    def checkGripper(self):
         if not self.checkBox_2.isChecked():
             if self.comboBox_2.currentText() == self.comboBox_4.currentText():
                 self.msgBox.setText(f"Shut and open action of the gripper can't be in the same iteration!")
@@ -505,7 +486,7 @@ class Ui_MainWindow():
         else:
             return True
 
-    def check_filled(self):
+    def checkFilled(self):
         self.unfilled1 = False
         self.unfilled2 = False
 
@@ -590,8 +571,8 @@ class Ui_MainWindow():
             print(f"data trajectory input {self.data_trajectory_input}")
 
     def sendData(self):
-        check_filled = self.check_filled()
-        check_gripper = self.check_gripper()
+        check_filled = self.checkFilled()
+        check_gripper = self.checkGripper()
         if check_filled and check_gripper:
             if self.serial.open:
                 self.plainTextEdit.clear()
@@ -602,7 +583,7 @@ class Ui_MainWindow():
                 gripper_action_buka = self.comboBox_4.itemData(self.comboBox_4.currentIndex())
                 gripper_action = [gripper_action_buka[0], gripper_action_tutup[0]]
 
-                self.serial.sent_trajectory_gain(self, gripper_action, self.list_x_enabled, self.list_y_enabled,
+                self.serial.serialSendData(self, gripper_action, self.list_x_enabled, self.list_y_enabled,
                                                  self.list_z_enabled)
                 self.xAxisRange = len(self.list_x_enabled)
                 print(self.xAxisRange)
@@ -633,7 +614,7 @@ class Ui_MainWindow():
                 self.msgBox.setIcon(self.msgBox.icon().Information)
                 self.msgBox.exec()
 
-    def toogle_checkbox_2(self):
+    def checkBoxToogle(self):
         if self.checkBox_2.isChecked():
             self.comboBox_2.setEnabled(False)
             self.comboBox_4.setEnabled(False)
@@ -643,7 +624,7 @@ class Ui_MainWindow():
 
     def serialConnect(self):
         if self.pushButton_2.text() == "Connect":
-            self.serial.serial_connect(self)
+            self.serial.serialConnect(self)
             if self.serial.open:
                 self.plainTextEdit.clear()
                 self.plainTextEdit_2.clear()
@@ -678,7 +659,7 @@ class Ui_MainWindow():
                 self.msgBox.setText(f"Fail to connect to port {self.comboBox.currentText()}")
                 self.msgBox.exec()
         else:
-            self.serial.serial_close()
+            self.serial.serialClose()
             self.plainTextEdit.clear()
             self.pushButton_2.setText(QCoreApplication.translate("self.mainWindow", u"Connect", None))
             self.pushButton.setEnabled(True)
@@ -693,7 +674,7 @@ class Ui_MainWindow():
 
     def openAboutWindow(self):
         self.msgBox.about(None, "Robot Arm Control App", "<center></center><b>Robot Arm Control App</b><br/><br/>\
-            More info: <a href ='https://github.com/maplezs/EWS_3_4a'>\
+            <a href ='https://github.com/maplezs/EWS_3_4a'>\
             https://github.com/maplezs/EWS_3_4a</a><br/><br/>\
             Developed by Rafsanjani Nurul Irsyad<br/><br/>\
             2024")
@@ -776,8 +757,8 @@ class Ui_MainWindow():
                         self.comboBox_4.setCurrentIndex(saved_data.get('gripper').get('buka') - 1)
 
     def saveFile(self):
-        check_data = self.check_filled()
-        check_gripper = self.check_gripper()
+        check_data = self.checkFilled()
+        check_gripper = self.checkGripper()
         if check_data and check_gripper:
             file_name, _ = QFileDialog.getSaveFileName(self.mainWindow, "Save File", "", "Text Files (*.txt)")
             if file_name.endswith(".txt"):
@@ -807,7 +788,7 @@ class Ui_MainWindow():
                 with open(file_name, "w") as f:
                     f.write(json.dumps(save_data, indent=4))
             else:
-                self.msgBox.setText("Data Tidak Tersimpan")
+                self.msgBox.setText("Data not saved")
                 self.msgBox.setIcon(self.msgBox.icon().Information)
                 self.msgBox.exec()
                 return
@@ -882,19 +863,19 @@ class PlotWindow(QMainWindow):
                 static_ax_list[i].set_xlabel('Iteration')
                 static_ax_list[i].set_ylabel('Trajectory (cm)')
                 if i == 2:
-                    static_ax_list[0].set_title('Trajectory X')
-                    static_ax_list[1].set_title('Trajectory Y')
-                    static_ax_list[2].set_title('Trajectory Z')
+                    static_ax_list[0].set_title('X Trajectory')
+                    static_ax_list[1].set_title('Y Trajectory')
+                    static_ax_list[2].set_title('Z Trajectory')
 
         else:
             for i in range(len(static_ax_list)):
                 static_ax_list[i].plot(range(1, data[1] + 1), data[0][i])
-                static_ax_list[i].set_xlabel('Iterasi')
-                static_ax_list[i].set_ylabel('Torsi (N.m)')
+                static_ax_list[i].set_xlabel('Iteration')
+                static_ax_list[i].set_ylabel('Torque (N.m)')
                 if i == 2:
-                    static_ax_list[0].set_title('Torsi Joint Base')
-                    static_ax_list[1].set_title('Torsi Joint Tengah')
-                    static_ax_list[2].set_title('Torsi Joint Atas')
+                    static_ax_list[0].set_title('Torque Base Joint')
+                    static_ax_list[1].set_title('Torque Middle Joint')
+                    static_ax_list[2].set_title('Torque Top Joint')
 
 
 class Worker(QObject):
@@ -909,7 +890,7 @@ class Worker(QObject):
         self.serial = serial
 
     def run(self):
-        self.serial.serial_log_print(self)
+        self.serial.serialLogPrint(self)
         self.finished.emit()
 
 

@@ -16,7 +16,7 @@ from matplotlib.backends.backend_qtagg import \
     NavigationToolbar2QT as NavigationToolbar
 from matplotlib.backends.qt_compat import QtWidgets
 from matplotlib.figure import Figure
-from serial_control import SerialControl
+from SerialControl import SerialControl
 
 
 def zeros_count(decimal):

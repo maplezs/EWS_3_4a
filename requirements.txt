@@ -13,3 +13,4 @@ PyQt6_sip==13.8.0
 pyserial==3.5
 python-dateutil==2.9.0.post0
 six==1.16.0
+pyqtgraph

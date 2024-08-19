@@ -13,6 +13,7 @@ const float DXL_PROTOCOL_VERSION = 1.0;
 Dynamixel2Arduino dxl(DXL_SERIAL, DXL_DIR_PIN);
 using namespace ControlTableItem;
 ServoEasing gripper;
+String sentData;
 float gain1[6];
 float gain2[6];
 float gain3[6];
@@ -39,7 +40,35 @@ void movingStatusCheck() {
   uint8_t moving_returned_one;
   uint8_t moving_returned_two;
   uint8_t moving_returned_three;
+  float curr1;
+  float curr2;
+  float curr3;
   while (movingStatus) {
+   do {
+     curr1 = dxl.getPresentPosition(DXL_ID_ONE, UNIT_DEGREE);
+   } while(curr1 > 240 || curr1 == 0 || curr1 < 0);
+
+   do {
+     curr2 = dxl.getPresentPosition(DXL_ID_TWO, UNIT_DEGREE);
+   } while(curr2 > 180 || curr2 == 0 || curr2 < 0);
+ 
+    do {
+      curr3 = dxl.getPresentPosition(DXL_ID_THREE, UNIT_DEGREE);
+    } while(curr3 < 0 || curr3 > 150 || curr3 == 0);
+
+    DEBUG_SERIAL.print("ReferenceOne");
+    DEBUG_SERIAL.print(data.theta[0] - 150);
+    DEBUG_SERIAL.print("ActualOne");
+    DEBUG_SERIAL.print(curr1 - 150);
+    DEBUG_SERIAL.print("ReferenceTwo");
+    DEBUG_SERIAL.print(190 - data.theta[1]);
+    DEBUG_SERIAL.print("ActualTwo");
+    DEBUG_SERIAL.print(190 - curr2);
+    DEBUG_SERIAL.print("ReferenceThree");
+    DEBUG_SERIAL.print(150 - data.theta[2]);
+    DEBUG_SERIAL.print("ActualThree");
+    DEBUG_SERIAL.println(150 - curr3);
+
     dxl.read(DXL_ID_ONE, 46, 1, (uint8_t*)&moving_returned_one, sizeof(moving_returned_one), 10);
     dxl.read(DXL_ID_TWO, 46, 1, (uint8_t*)&moving_returned_two, sizeof(moving_returned_two), 10);
     dxl.read(DXL_ID_THREE, 46, 1, (uint8_t*)&moving_returned_three, sizeof(moving_returned_three), 10);
@@ -62,6 +91,7 @@ float* calcForwardKinematic() {
   float l1 = 0.133;
   float l2 = 0.15;
   float l3 = 0.18;
+  // float l3 = 0.2;
   float x = (l3*cos(curr2-curr3)+l2*cos(curr2))*cos(curr1);
   float y = (l3*cos(curr2-curr3)+l2*cos(curr2))*sin(curr1);
   float z = l3*sin(curr2-curr3)+l2*sin(curr2)+l1;
@@ -222,7 +252,8 @@ void actionMove(){
     doc1["done"] = true;
   }
 
-  serializeJson(doc1, DEBUG_SERIAL);
+  serializeJson(doc1, sentData);
+  DEBUG_SERIAL.println(sentData);
   doc1.clear();
 }
 void setup() {
@@ -230,16 +261,17 @@ void setup() {
   while(!DEBUG_SERIAL);
   dxl.begin(1000000);
   dxl.setPortProtocolVersion(DXL_PROTOCOL_VERSION);
-  dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_ONE, 800);
+  dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_ONE, 512);
   dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_TWO, 767);
-  dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_THREE, 767);
+  dxl.writeControlTableItem(TORQUE_LIMIT, DXL_ID_THREE, 512);
   gripper.attach(7, 10);
-  gripper.setSpeed(400); 
+  gripper.setSpeed(200); 
   currentTime = millis();
-  while(currentTime - previousTime < gripperEventInterval){
+  while(currentTime - previousTime < 500){
     currentTime = millis();
   }
   previousTime = currentTime;
+
   dxl.setGoalPosition(DXL_ID_ONE, 150, UNIT_DEGREE);
   dxl.setGoalPosition(DXL_ID_TWO, 100, UNIT_DEGREE);
   dxl.setGoalPosition(DXL_ID_THREE, 51, UNIT_DEGREE);

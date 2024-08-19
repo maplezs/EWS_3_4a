@@ -1,6 +1,7 @@
 import serial.tools.list_ports
 import time
 import json
+import re
 from math import atan, acos, sqrt, pow, pi
 from datetime import datetime
 from pprint import pprint
@@ -23,12 +24,10 @@ class SerialControl:
         gui.comboBox.addItems(self.coms)
 
     def serialConnect(self, gui):
-        print("test")
         if not self.open:
             try:
                 self.ser = serial.Serial(gui.comboBox.currentText(), 115200, timeout=0.1)
                 time.sleep(2)
-                print(self.ser.is_open)
             except Exception as a:
                 print(a)
         else:
@@ -42,7 +41,6 @@ class SerialControl:
                 self.ser.write(sendData.encode())
                 tdata = self.ser.readline()
                 a = tdata.decode()
-                print(a)
                 if a == "sync_ok\n":
                     self.ser.status = True
                     self.open = True
@@ -57,7 +55,8 @@ class SerialControl:
                 time.sleep(1)
                 self.ser.status = True
                 self.open = True
-        except:
+        except Exception as a:
+            print(a)
             self.ser.status = False
             self.open = False
 
@@ -67,7 +66,8 @@ class SerialControl:
             self.ser.close()
             self.ser.status = False
             self.open = False
-        except:
+        except Exception as a:
+            print(a)
             self.ser.status = False
             self.open = False
 
@@ -154,47 +154,50 @@ class SerialControl:
         self.ser.write(sentData.encode())
         temp = self.ser.readline()
         temp = temp.decode()
-        print(temp)
         if "data ok" in temp:
-            pass
+            print("data ok")
+            time.sleep(0.5)
         else:
             print("data not ok")
 
-
-    def serialLogPrint(self, signal):
+    def serialPlot(self, signal):
         self.a = True
         signal.progress1.emit("Iteration\tTime\tTorque 1\tTorque 2\tTorque 3")
         signal.progress2.emit("Iteration\tTime\tX\tY\tZ")
         count = 1
         try:
             while self.a:
-                tdata = self.ser.readline()
-                if tdata:
+                tdata = self.ser.readline().decode()
+                print(tdata)
+                numbers = self.get_numbers(tdata)
+                if len(numbers) == 6:
+                    signal.plotter.emit(numbers)
+                if len(numbers) > 6:
                     dt = datetime.now().strftime("%H:%M:%S")
                     data = json.loads(tdata)
-                    print(type(data))
-                    if type(data) is float:
-                        print(data)
-                    print(f"{count}\t{dt}\t{data.get('satu')}%\t{data.get('dua')}%\t{data.get('tiga')}")
-                    print(f"{count}\t{dt}\t{data.get('fk1')}\t{data.get('fk2')}\t{data.get('fk3')}")
                     signal.progress1.emit(
                         f"{count}\t{dt}\t{data.get('satu')}%\t{data.get('dua')}%\t{data.get('tiga')}%")
-                    data_torque = [data.get('t1'), data.get('t2'), data.get('t3'), dt, data.get('satu'),
-                                   data.get('dua'), data.get('tiga')]
-                    signal.progress1_data.emit(data_torque)
                     fk1 = round(data.get('fk1') * 100, 3)
                     fk2 = round(data.get('fk2') * 100, 3)
                     fk3 = round(data.get('fk3') * 100, 3)
                     signal.progress2.emit(f"{count}\t{dt}\t{fk1}\t{fk2}\t{fk3}")
+                    data_torque = [data.get('t1'), data.get('t2'), data.get('t3'), dt, data.get('satu'),
+                                   data.get('dua'), data.get('tiga')]
                     data_trajectory = [data.get('fk1'), data.get('fk2'), data.get('fk3'), dt]
+                    signal.progress1_data.emit(data_torque)
                     signal.progress2_data.emit(data_trajectory)
                     count += 1
-                    if "done" in data:
-                        print("data ended")
-                        self.a = False
-                        signal.progress1.emit("=============================================")
-                        signal.progress2.emit("=============================================")
-                        signal.finished.emit()
-                        del count
+                if "done" in tdata:
+                    print("data ended")
+                    self.a = False
+                    signal.progress1.emit("=============================================")
+                    signal.progress2.emit("=============================================")
+                    signal.finished.emit()
+                    del count
         except Exception as a:
+            print("caught an exception!")
             print(a)
+
+    def get_numbers(self, string):
+        numbers = re.findall(r'[-+]?[0-9]*\.?[0-9]+', string)
+        return numbers

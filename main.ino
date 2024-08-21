@@ -30,7 +30,7 @@ uint16_t torque2;
 uint16_t torque3;
 movingData data;
 const unsigned long gripperEventInterval = 1000;
-const unsigned long setupEventInterval = 1000;
+const unsigned long setupEventInterval = 500;
 const unsigned long dataEventInterval = 100;
 const unsigned long moveEventInterval = 200;
 unsigned long previousTime = 0;
@@ -253,7 +253,7 @@ void actionMove(){
   }
 
   serializeJson(doc1, sentData);
-  DEBUG_SERIAL.println(sentData);
+  DEBUG_SERIAL.print(sentData + '\n');
   doc1.clear();
 }
 void setup() {
@@ -267,7 +267,7 @@ void setup() {
   gripper.attach(7, 10);
   gripper.setSpeed(200); 
   currentTime = millis();
-  while(currentTime - previousTime < 500){
+  while(currentTime - previousTime < setupEventInterval){
     currentTime = millis();
   }
   previousTime = currentTime;

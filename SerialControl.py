@@ -7,6 +7,11 @@ from datetime import datetime
 from pprint import pprint
 
 
+def getNumbers(string):
+    numbers = re.findall(r'[-+]?[0-9]*\.?[0-9]+', string)
+    return numbers
+
+
 class SerialControl:
     def __init__(self):
         self.open = False
@@ -169,7 +174,7 @@ class SerialControl:
             while self.a:
                 tdata = self.ser.readline().decode()
                 print(tdata)
-                numbers = self.get_numbers(tdata)
+                numbers = getNumbers(tdata)
                 if len(numbers) == 6:
                     signal.plotter.emit(numbers)
                 if len(numbers) > 6:
@@ -197,7 +202,3 @@ class SerialControl:
         except Exception as a:
             print("caught an exception!")
             print(a)
-
-    def get_numbers(self, string):
-        numbers = re.findall(r'[-+]?[0-9]*\.?[0-9]+', string)
-        return numbers

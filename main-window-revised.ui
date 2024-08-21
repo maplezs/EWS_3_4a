@@ -19,20 +19,25 @@
      <rect>
       <x>10</x>
       <y>0</y>
-      <width>341</width>
+      <width>481</width>
       <height>211</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
     <property name="title">
-     <string>Manajemen COM</string>
+     <string>Port Config</string>
     </property>
     <widget class="QPushButton" name="pushButton">
      <property name="geometry">
       <rect>
-       <x>230</x>
+       <x>310</x>
        <y>90</y>
-       <width>75</width>
-       <height>31</height>
+       <width>81</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="text">
@@ -42,37 +47,37 @@
     <widget class="QPushButton" name="pushButton_2">
      <property name="geometry">
       <rect>
-       <x>130</x>
+       <x>220</x>
        <y>110</y>
-       <width>71</width>
-       <height>31</height>
+       <width>81</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="text">
-      <string>Hubungkan</string>
+      <string>Connect</string>
      </property>
     </widget>
     <widget class="QComboBox" name="comboBox">
      <property name="geometry">
       <rect>
-       <x>130</x>
-       <y>80</y>
-       <width>71</width>
-       <height>22</height>
+       <x>220</x>
+       <y>70</y>
+       <width>81</width>
+       <height>31</height>
       </rect>
      </property>
     </widget>
     <widget class="QLabel" name="label">
      <property name="geometry">
       <rect>
-       <x>40</x>
+       <x>120</x>
        <y>90</y>
-       <width>81</width>
+       <width>91</width>
        <height>31</height>
       </rect>
      </property>
      <property name="text">
-      <string>Port tersedia:</string>
+      <string>Available port:</string>
      </property>
     </widget>
    </widget>
@@ -94,8 +99,13 @@
        <height>171</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
      <property name="title">
-      <string>Trajektori Robot</string>
+      <string>Waypoint Trajectory</string>
      </property>
      <widget class="QLineEdit" name="x4">
       <property name="geometry">
@@ -447,8 +457,13 @@
        <height>171</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
      <property name="title">
-      <string>Matriks K (Gain)</string>
+      <string>K Matrix (Gain)</string>
      </property>
      <widget class="QLineEdit" name="inputMatrix_1">
       <property name="geometry">
@@ -529,6 +544,11 @@
        <height>31</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
      <property name="text">
       <string>Send</string>
      </property>
@@ -543,8 +563,13 @@
       <height>211</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
     <property name="title">
-     <string>Log Torsi</string>
+     <string>Torque Log</string>
     </property>
     <widget class="QPlainTextEdit" name="plainTextEdit">
      <property name="geometry">
@@ -555,44 +580,10 @@
        <height>181</height>
       </rect>
      </property>
-    </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_5">
-    <property name="geometry">
-     <rect>
-      <x>350</x>
-      <y>0</y>
-      <width>241</width>
-      <height>211</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Manajemen Data</string>
-    </property>
-    <widget class="QPushButton" name="pushButton_6">
-     <property name="geometry">
-      <rect>
-       <x>90</x>
-       <y>60</y>
-       <width>75</width>
-       <height>24</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Simpan</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_7">
-     <property name="geometry">
-      <rect>
-       <x>90</x>
-       <y>110</y>
-       <width>75</width>
-       <height>24</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Buka</string>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
      </property>
     </widget>
    </widget>
@@ -605,8 +596,13 @@
       <height>211</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
     <property name="title">
-     <string>Log Trajektori</string>
+     <string>Trajectory Log</string>
     </property>
     <widget class="QPlainTextEdit" name="plainTextEdit_2">
      <property name="geometry">
@@ -617,26 +613,36 @@
        <height>181</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
     </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_6">
     <property name="geometry">
      <rect>
-      <x>590</x>
+      <x>490</x>
       <y>0</y>
-      <width>371</width>
+      <width>471</width>
       <height>211</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
     <property name="title">
-     <string>Konfigurasi Lain</string>
+     <string>Misc Config</string>
     </property>
     <widget class="QGroupBox" name="groupBox_9">
      <property name="geometry">
       <rect>
        <x>20</x>
        <y>30</y>
-       <width>131</width>
+       <width>141</width>
        <height>171</height>
       </rect>
      </property>
@@ -648,43 +654,43 @@
        <rect>
         <x>20</x>
         <y>40</y>
-        <width>91</width>
-        <height>22</height>
+        <width>101</width>
+        <height>31</height>
        </rect>
       </property>
       <item>
        <property name="text">
-        <string>Iterasi 1</string>
+        <string>1st Iteration</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>Iterasi 2</string>
+        <string>2nd Iteration</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>Iterasi 3</string>
+        <string>3rd Iteration</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>Iterasi 4</string>
+        <string>4th Iteration</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>Iterasi 5</string>
+        <string>5th Iteration</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>Iterasi 6</string>
+        <string>6th Iteration</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>Iterasi 7</string>
+        <string>7th Iteration</string>
        </property>
       </item>
      </widget>
@@ -693,12 +699,12 @@
        <rect>
         <x>40</x>
         <y>90</y>
-        <width>31</width>
+        <width>41</width>
         <height>16</height>
        </rect>
       </property>
       <property name="text">
-       <string>Buka</string>
+       <string>Open</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_15">
@@ -706,12 +712,12 @@
        <rect>
         <x>40</x>
         <y>20</y>
-        <width>31</width>
+        <width>41</width>
         <height>16</height>
        </rect>
       </property>
       <property name="text">
-       <string>Tutup</string>
+       <string>Shut</string>
       </property>
      </widget>
      <widget class="QComboBox" name="comboBox_4">
@@ -719,64 +725,51 @@
        <rect>
         <x>20</x>
         <y>110</y>
-        <width>91</width>
-        <height>22</height>
-       </rect>
-      </property>
-      <item>
-       <property name="text">
-        <string>Iterasi 1</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Iterasi 2</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Iterasi 3</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Iterasi 4</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Iterasi 5</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Iterasi 6</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Iterasi 7</string>
-       </property>
-      </item>
-     </widget>
-     <widget class="QCheckBox" name="checkBox_2">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>140</y>
         <width>101</width>
-        <height>20</height>
+        <height>31</height>
        </rect>
       </property>
-      <property name="text">
-       <string>Tanpa Gripper</string>
-      </property>
+      <item>
+       <property name="text">
+        <string>1st Iteration</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>2nd Iteration</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>3rd Iteration</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>4th Iteration</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>5th Iteration</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>6th Iteration</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>7th Iteration</string>
+       </property>
+      </item>
      </widget>
     </widget>
     <widget class="QGroupBox" name="groupBox_10">
      <property name="geometry">
       <rect>
-       <x>240</x>
+       <x>340</x>
        <y>30</y>
        <width>111</width>
        <height>171</height>
@@ -791,7 +784,7 @@
         <x>20</x>
         <y>40</y>
         <width>75</width>
-        <height>24</height>
+        <height>31</height>
        </rect>
       </property>
       <property name="text">
@@ -804,7 +797,7 @@
         <x>20</x>
         <y>110</y>
         <width>75</width>
-        <height>24</height>
+        <height>31</height>
        </rect>
       </property>
       <property name="text">
@@ -814,48 +807,48 @@
      <widget class="QLabel" name="label_18">
       <property name="geometry">
        <rect>
-        <x>30</x>
+        <x>40</x>
         <y>20</y>
-        <width>51</width>
+        <width>41</width>
         <height>16</height>
        </rect>
       </property>
       <property name="text">
-       <string>Log Torsi</string>
+       <string>Torque</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_19">
       <property name="geometry">
        <rect>
-        <x>20</x>
+        <x>30</x>
         <y>90</y>
-        <width>71</width>
+        <width>61</width>
         <height>16</height>
        </rect>
       </property>
       <property name="text">
-       <string>Log Trajektori</string>
+       <string>Trajectory</string>
       </property>
      </widget>
     </widget>
     <widget class="QLabel" name="label_16">
      <property name="geometry">
       <rect>
-       <x>160</x>
+       <x>200</x>
        <y>70</y>
-       <width>91</width>
+       <width>101</width>
        <height>41</height>
       </rect>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Jumlah Iterasi&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Num of Iteration&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_17">
      <property name="geometry">
       <rect>
-       <x>190</x>
-       <y>100</y>
+       <x>240</x>
+       <y>120</y>
        <width>20</width>
        <height>21</height>
       </rect>
@@ -867,10 +860,10 @@
     <widget class="QPushButton" name="pushButton_3">
      <property name="geometry">
       <rect>
-       <x>160</x>
-       <y>120</y>
-       <width>31</width>
-       <height>31</height>
+       <x>180</x>
+       <y>110</y>
+       <width>41</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="text">
@@ -880,14 +873,27 @@
     <widget class="QPushButton" name="pushButton_4">
      <property name="geometry">
       <rect>
-       <x>200</x>
-       <y>120</y>
-       <width>31</width>
-       <height>31</height>
+       <x>270</x>
+       <y>110</y>
+       <width>41</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="text">
       <string>+</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="checkBox_2">
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>180</y>
+       <width>111</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>No Gripper</string>
      </property>
     </widget>
    </widget>

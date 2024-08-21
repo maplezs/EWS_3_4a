@@ -13,7 +13,6 @@ from PyQt6.QtCore import (
     QRect,
     pyqtSignal,
     QThread,
-    QTimer,
 )
 from PyQt6.QtGui import QAction, QIcon, QPixmap, QFont
 from PyQt6.QtWidgets import (
@@ -38,11 +37,18 @@ from matplotlib.backends.backend_qtagg import FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 import pyqtgraph as pg
-from serial_control import SerialControl
+from SerialControl import SerialControl
 
 pg.setConfigOptions(antialias=True)
 pg.setConfigOption("background", "#FCFCFC")
 pg.setConfigOption("foreground", "#212121")
+
+if sys.platform.startswith('win32'):
+    app_icon = "./icons/icon-app.png"
+    app_logo = "./icons/logo100crop.png"
+else:
+    app_icon = os.path.join(os.path.dirname(__file__), "./icons/icon-app.png")
+    app_logo = os.path.join(os.path.dirname(__file__), "./icons/logo100crop.png")
 plot_colors = [
     "#ba8310",  # Kollane
     "#00BCD4",  # syan
@@ -96,9 +102,6 @@ class Ui_MainWindow(QMainWindow):
         self.plot_windows = [None, None]
         self.xAxisRange = 7
         self.serial = serial
-        self.timer = QTimer()
-        self.timer.setInterval(0)
-        self.timer.start()
 
     def setupUi(self):
         if not self.objectName():
@@ -106,13 +109,14 @@ class Ui_MainWindow(QMainWindow):
         self.setMinimumSize(359, 158)
         self.resize(359, 158)
         self.setMaximumSize(359, 158)
-        self.setWindowIcon(QIcon("icon-app.png"))
+        self.setWindowIcon(QIcon(app_icon))
         self.actionManual = QAction(self)
         self.actionManual.setObjectName("actionTentang")
         self.actionAbout = QAction(self)
         self.actionAbout.setObjectName("actionTentang_2")
         self.actionOpen = QAction(self)
         self.actionSave = QAction(self)
+        self.actionSaveLog = QAction(self)
         self.actionExit = QAction(self)
         self.actionExit.setObjectName("actionKeluar")
         self.centralwidget = QWidget(self)
@@ -120,24 +124,28 @@ class Ui_MainWindow(QMainWindow):
         self.groupBox = QGroupBox(self.centralwidget)
         self.groupBox.setObjectName("groupBox")
         self.groupBox.setGeometry(QRect(10, 0, 341, 111))
+        font = QFont()
+        font.setPointSize(10)
+        self.groupBox.setFont(font)
         self.buttonRefresh = QPushButton(self.groupBox)
         self.buttonRefresh.setObjectName("pushButton")
-        self.buttonRefresh.setGeometry(QRect(260, 30, 75, 31))
+        self.buttonRefresh.setGeometry(QRect(255, 30, 81, 41))
         self.buttonConnDisconnect = QPushButton(self.groupBox)
         self.buttonConnDisconnect.setObjectName("pushButton_2")
-        self.buttonConnDisconnect.setGeometry(QRect(170, 60, 71, 31))
+        self.buttonConnDisconnect.setGeometry(QRect(170, 60, 81, 41))
         self.comboBox = QComboBox(self.groupBox)
         self.comboBox.setObjectName("comboBox")
-        self.comboBox.setGeometry(QRect(170, 30, 71, 22))
+        self.comboBox.setGeometry(QRect(170, 20, 81, 31))
         self.label = QLabel(self.groupBox)
         self.label.setObjectName("label")
-        self.label.setGeometry(QRect(50, 20, 81, 31))
+        self.label.setGeometry(QRect(50, 20, 91, 31))
         self.widget_2 = QWidget(self.centralwidget)
         self.widget_2.setObjectName("widget_2")
         self.widget_2.setGeometry(QRect(0, 180, 971, 251))
         self.groupBox_4 = QGroupBox(self.widget_2)
         self.groupBox_4.setObjectName("groupBox_4")
         self.groupBox_4.setGeometry(QRect(10, 30, 481, 171))
+        self.groupBox_4.setFont(font)
         # X
         self.x0 = QLineEdit(self.groupBox_4)
         self.x0.setObjectName("x0")
@@ -237,6 +245,7 @@ class Ui_MainWindow(QMainWindow):
         self.groupBox_3 = QGroupBox(self.widget_2)
         self.groupBox_3.setObjectName("groupBox_3")
         self.groupBox_3.setGeometry(QRect(490, 30, 471, 171))
+        self.groupBox_3.setFont(font)
         self.inputMatrix_1 = QLineEdit(self.groupBox_3)
         self.inputMatrix_1.setObjectName("inputMatrix_1")
         self.inputMatrix_1.setGeometry(QRect(40, 40, 421, 22))
@@ -258,33 +267,32 @@ class Ui_MainWindow(QMainWindow):
         self.pushButton_5 = QPushButton(self.widget_2)
         self.pushButton_5.setObjectName("pushButton_5")
         self.pushButton_5.setGeometry(QRect(450, 210, 75, 31))
+        self.pushButton_5.setFont(font)
         self.groupBox_7 = QGroupBox(self.centralwidget)
         self.groupBox_7.setObjectName("groupBox_7")
         self.groupBox_7.setGeometry(QRect(10, 410, 401, 211))
+        self.groupBox_7.setFont(font)
+        font1 = QFont()
+        font1.setPointSize(9)
         self.plainTextEdit = QPlainTextEdit(self.groupBox_7)
         self.plainTextEdit.setObjectName("plainTextEdit")
         self.plainTextEdit.setGeometry(QRect(10, 20, 381, 181))
-        self.groupBox_5 = QGroupBox(self.centralwidget)
-        self.groupBox_5.setObjectName("groupBox_5")
-        self.groupBox_5.setGeometry(QRect(350, 0, 241, 211))
-        self.pushButton_10 = QPushButton(self.groupBox_5)
-        self.pushButton_10.setObjectName("pushButton_10")
-        self.pushButton_10.setGeometry(QRect(80, 140, 75, 24))
-        self.label_20 = QLabel(self.groupBox_5)
-        self.label_20.setObjectName("label_20")
-        self.label_20.setGeometry(QRect(80, 110, 71, 31))
+        self.plainTextEdit.setFont(font1)
         self.groupBox_8 = QGroupBox(self.centralwidget)
         self.groupBox_8.setObjectName("groupBox_8")
         self.groupBox_8.setGeometry(QRect(550, 410, 411, 211))
+        self.groupBox_8.setFont(font)
         self.plainTextEdit_2 = QPlainTextEdit(self.groupBox_8)
         self.plainTextEdit_2.setObjectName("plainTextEdit_2")
         self.plainTextEdit_2.setGeometry(QRect(10, 20, 391, 181))
+        self.plainTextEdit_2.setFont(font1)
         self.groupBox_6 = QGroupBox(self.centralwidget)
-        self.groupBox_6.setObjectName("groupBox_6")
-        self.groupBox_6.setGeometry(QRect(590, 0, 371, 211))
+        self.groupBox_6.setObjectName(u"groupBox_6")
+        self.groupBox_6.setGeometry(QRect(490, 0, 471, 211))
+        self.groupBox_6.setFont(font)
         self.groupBox_9 = QGroupBox(self.groupBox_6)
         self.groupBox_9.setObjectName("groupBox_9")
-        self.groupBox_9.setGeometry(QRect(20, 30, 131, 171))
+        self.groupBox_9.setGeometry(QRect(20, 30, 141, 171))
         self.comboBox_2 = QComboBox(self.groupBox_9)
         self.comboBox_2.addItem("1", [1, "tutup"])
         self.comboBox_2.addItem("2", [2, "tutup"])
@@ -294,10 +302,10 @@ class Ui_MainWindow(QMainWindow):
         self.comboBox_2.addItem("6", [6, "tutup"])
         self.comboBox_2.addItem("7", [7, "tutup"])
         self.comboBox_2.setObjectName("comboBox_2")
-        self.comboBox_2.setGeometry(QRect(20, 40, 91, 22))
+        self.comboBox_2.setGeometry(QRect(20, 40, 101, 31))
         self.label_5 = QLabel(self.groupBox_9)
         self.label_5.setObjectName("label_5")
-        self.label_5.setGeometry(QRect(40, 90, 31, 16))
+        self.label_5.setGeometry(QRect(40, 90, 41, 16))
         self.label_15 = QLabel(self.groupBox_9)
         self.label_15.setObjectName("label_15")
         self.label_15.setGeometry(QRect(40, 20, 31, 16))
@@ -311,41 +319,41 @@ class Ui_MainWindow(QMainWindow):
         self.comboBox_4.addItem("7", [7, "buka"])
         self.comboBox_4.setObjectName("comboBox_4")
         self.comboBox_4.setObjectName("comboBox_4")
-        self.comboBox_4.setGeometry(QRect(20, 110, 91, 22))
+        self.comboBox_4.setGeometry(QRect(20, 110, 101, 31))
         self.checkBox_2 = QCheckBox(self.groupBox_9)
         self.checkBox_2.setObjectName("checkBox_2")
-        self.checkBox_2.setGeometry(QRect(20, 140, 101, 20))
+        self.checkBox_2.setGeometry(QRect(190, 180, 111, 20))
         self.groupBox_10 = QGroupBox(self.groupBox_6)
-        self.groupBox_10.setObjectName("groupBox_10")
-        self.groupBox_10.setGeometry(QRect(240, 30, 111, 171))
+        self.groupBox_10.setObjectName(u"groupBox_10")
+        self.groupBox_10.setGeometry(QRect(340, 30, 111, 171))
         self.pushButton_8 = QPushButton(self.groupBox_10)
-        self.pushButton_8.setObjectName("pushButton_8")
-        self.pushButton_8.setGeometry(QRect(20, 40, 75, 24))
+        self.pushButton_8.setObjectName(u"pushButton_8")
+        self.pushButton_8.setGeometry(QRect(20, 40, 75, 31))
         self.pushButton_9 = QPushButton(self.groupBox_10)
-        self.pushButton_9.setObjectName("pushButton_9")
-        self.pushButton_9.setGeometry(QRect(20, 110, 75, 24))
+        self.pushButton_9.setObjectName(u"pushButton_9")
+        self.pushButton_9.setGeometry(QRect(20, 110, 75, 31))
         self.label_18 = QLabel(self.groupBox_10)
-        self.label_18.setObjectName("label_18")
-        self.label_18.setGeometry(QRect(30, 20, 51, 16))
+        self.label_18.setObjectName(u"label_18")
+        self.label_18.setGeometry(QRect(30, 20, 61, 16))
         self.label_19 = QLabel(self.groupBox_10)
-        self.label_19.setObjectName("label_19")
-        self.label_19.setGeometry(QRect(20, 90, 71, 16))
+        self.label_19.setObjectName(u"label_19")
+        self.label_19.setGeometry(QRect(30, 90, 61, 16))
         self.label_16 = QLabel(self.groupBox_6)
-        self.label_16.setObjectName("label_16")
-        self.label_16.setGeometry(QRect(152, 70, 91, 41))
+        self.label_16.setObjectName(u"label_16")
+        self.label_16.setGeometry(QRect(200, 70, 101, 41))
         self.label_17 = QLabel(self.groupBox_6)
-        self.label_17.setObjectName("label_17")
-        self.label_17.setGeometry(QRect(190, 100, 20, 21))
+        self.label_17.setObjectName(u"label_17")
+        self.label_17.setGeometry(QRect(240, 120, 20, 21))
         self.pushButton_3 = QPushButton(self.groupBox_6)
-        self.pushButton_3.setObjectName("pushButton_3")
-        self.pushButton_3.setGeometry(QRect(160, 120, 31, 31))
+        self.pushButton_3.setObjectName(u"pushButton_3")
+        self.pushButton_3.setGeometry(QRect(180, 110, 41, 41))
         self.pushButton_4 = QPushButton(self.groupBox_6)
-        self.pushButton_4.setObjectName("pushButton_4")
-        self.pushButton_4.setGeometry(QRect(200, 120, 31, 31))
+        self.pushButton_4.setObjectName(u"pushButton_4")
+        self.pushButton_4.setGeometry(QRect(270, 110, 41, 41))
         self.label_2 = QLabel(self.centralwidget)
         self.label_2.setObjectName("label_2")
         self.label_2.setGeometry(QRect(410, 440, 141, 151))
-        self.logo = QPixmap("logo100crop.png")
+        self.logo = QPixmap(app_logo)
         self.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(self)
         self.menubar.setObjectName("menubar")
@@ -362,6 +370,7 @@ class Ui_MainWindow(QMainWindow):
         self.menubar.addAction(self.menuBantuan.menuAction())
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
+        self.menuFile.addAction(self.actionSaveLog)
         self.menuFile.addAction(self.actionExit)
         self.menuBantuan.addAction(self.actionManual)
         self.menuBantuan.addAction(self.actionAbout)
@@ -381,9 +390,10 @@ class Ui_MainWindow(QMainWindow):
         self.actionAbout.setText(QCoreApplication.translate("self", "About", None))
         self.actionOpen.setText(QCoreApplication.translate("self", "Open config", None))
         self.actionSave.setText(QCoreApplication.translate("self", "Save config", None))
+        self.actionSaveLog.setText(QCoreApplication.translate("self", "Save log", None))
         self.actionExit.setText(QCoreApplication.translate("self", "Exit", None))
         self.groupBox.setTitle(
-            QCoreApplication.translate("self", "Port Settings", None)
+            QCoreApplication.translate("self", "Port Config", None)
         )
         self.buttonRefresh.setText(QCoreApplication.translate("self", "Refresh", None))
         self.buttonConnDisconnect.setText(
@@ -402,7 +412,7 @@ class Ui_MainWindow(QMainWindow):
         self.label_11.setText(QCoreApplication.translate("self", "Y", None))
         self.label_12.setText(QCoreApplication.translate("self", "Z", None))
         self.groupBox_3.setTitle(
-            QCoreApplication.translate("self", "Matrix K (Gain)", None)
+            QCoreApplication.translate("self", "K Matrix (Gain)", None)
         )
         self.label_13.setText(QCoreApplication.translate("self", "6", None))
         self.label_14.setText(QCoreApplication.translate("self", "7", None))
@@ -413,20 +423,11 @@ class Ui_MainWindow(QMainWindow):
         self.menuFile.setTitle(QCoreApplication.translate("self", "File", None))
         self.menuBantuan.setTitle(QCoreApplication.translate("self", "Help", None))
         self.groupBox_7.setTitle(QCoreApplication.translate("self", "Torque Log", None))
-        self.groupBox_5.setTitle(
-            QCoreApplication.translate("self", "Data Configuration", None)
-        )
-        self.pushButton_10.setText(QCoreApplication.translate("self", "Save log", None))
-        self.label_20.setText(
-            QCoreApplication.translate(
-                "self", "<html><head/><body><p>Save log data</p></body></html>", None
-            )
-        )
         self.groupBox_8.setTitle(
             QCoreApplication.translate("self", "Trajectory Log", None)
         )
         self.groupBox_6.setTitle(
-            QCoreApplication.translate("self", "Misc Configuration", None)
+            QCoreApplication.translate("self", "Misc Config", None)
         )
         self.groupBox_9.setTitle(
             QCoreApplication.translate("self", "Servo Gripper", None)
@@ -482,18 +483,18 @@ class Ui_MainWindow(QMainWindow):
         self.label_19.setText(QCoreApplication.translate("self", "Trajectory", None))
         self.label_16.setText(
             QCoreApplication.translate(
-                "MainWindow",
+                "self",
                 "<html><head/><body><p>Num of Iteration</p></body></html>",
                 None,
             )
         )
         self.label_17.setText(
             QCoreApplication.translate(
-                "MainWindow", "<html><head/><body><p>7</p></body></html>", None
+                "self", "<html><head/><body><p>7</p></body></html>", None
             )
         )
-        self.pushButton_3.setText(QCoreApplication.translate("Self", "-", None))
-        self.pushButton_4.setText(QCoreApplication.translate("Self", "+", None))
+        self.pushButton_3.setText(QCoreApplication.translate("self", "-", None))
+        self.pushButton_4.setText(QCoreApplication.translate("self", "+", None))
         self.checkBox_2.setText(QCoreApplication.translate("self", "No Gripper", None))
         self.label_2.setPixmap(self.logo)
 
@@ -501,6 +502,8 @@ class Ui_MainWindow(QMainWindow):
         self.actionExit.setShortcut("Ctrl+Q")
         self.actionOpen.setShortcut("Ctrl+O")
         self.actionSave.setShortcut("Ctrl+S")
+        self.actionSaveLog.setShortcut("Ctrl+Shift+S")
+        self.actionSaveLog.triggered.connect(self.saveCSVFile)
         self.actionOpen.triggered.connect(self.openFile)
         self.actionSave.triggered.connect(self.saveFile)
         self.actionExit.triggered.connect(self.close)
@@ -519,7 +522,6 @@ class Ui_MainWindow(QMainWindow):
                 "Trajectory", 1, self.data_trajectory_input, self.data_trajectory
             )
         )
-        self.pushButton_10.clicked.connect(lambda: self.saveCSVFile())
 
         self.checkBox_2.stateChanged.connect(lambda: self.checkBoxToogle())
         self.plainTextEdit.setReadOnly(True)
@@ -537,13 +539,12 @@ class Ui_MainWindow(QMainWindow):
 
         self.actionOpen.setEnabled(False)
         self.actionSave.setEnabled(False)
+        self.actionSaveLog.setEnabled(False)
         self.pushButton_8.setEnabled(False)
         self.pushButton_9.setEnabled(False)
-        self.pushButton_10.setEnabled(False)
 
         self.groupBox_3.hide()
         self.groupBox_4.hide()
-        self.groupBox_5.hide()
         self.groupBox_6.hide()
         self.groupBox_7.hide()
         self.groupBox_8.hide()
@@ -564,7 +565,6 @@ class Ui_MainWindow(QMainWindow):
         self.list_y_enabled.pop()
         self.list_z_enabled.pop()
         self.label_17.setText(f"{len(self.list_x_enabled)}")
-        print(len(self.list_x_enabled))
         if len(self.list_x_enabled) == 6:
             self.pushButton_4.setEnabled(True)
         if len(self.list_x_enabled) == 1:
@@ -581,7 +581,6 @@ class Ui_MainWindow(QMainWindow):
         del self.list_y_disabled[-1]
         del self.list_z_disabled[-1]
         self.label_17.setText(f"{len(self.list_x_enabled)}")
-        print(len(self.list_x_enabled))
         if len(self.list_x_enabled) == 2:
             self.pushButton_3.setEnabled(True)
         if len(self.list_x_enabled) == 7:
@@ -620,7 +619,6 @@ class Ui_MainWindow(QMainWindow):
         for g in self.list_gain:
             g = g.text()
             if not g:
-                print(g)
                 if not self.unfilled2:
                     self.unfilled2 = True
 
@@ -637,7 +635,6 @@ class Ui_MainWindow(QMainWindow):
         self.pushButton_5.setEnabled(True)
         self.pushButton_8.setEnabled(True)
         self.pushButton_9.setEnabled(True)
-        self.pushButton_10.setEnabled(True)
 
     def clearPlotterData(self):
         size = len(self.rtpWindow.plot.x_axis)
@@ -646,6 +643,7 @@ class Ui_MainWindow(QMainWindow):
         for i in range(6):
             del self.rtpWindow.plot.y_axis[i][0:(size - 1)]
             self.rtpWindow.plot.y_axis[i][0] = 0
+
     def clearData(self):
         data_torque = [
             self.data_torque_satu,
@@ -710,7 +708,6 @@ class Ui_MainWindow(QMainWindow):
                 self.data_torque_dua,
                 self.data_torque_tiga,
             ]
-            print(f"data torque final {self.data_torque}")
 
     def saveTrajectoryData(self, data):
         self.data_trajectory_x.append(data[0] * 100)
@@ -733,8 +730,6 @@ class Ui_MainWindow(QMainWindow):
                 [float(y.text()) for y in self.list_y_enabled],
                 [float(z.text()) for z in self.list_z_enabled],
             ]
-            print(f"data trajectory servo {self.data_trajectory}")
-            print(f"data trajectory input {self.data_trajectory_input}")
 
     def sendData(self):
         check_filled = self.checkFilled()
@@ -769,11 +764,9 @@ class Ui_MainWindow(QMainWindow):
                     self.list_z_enabled,
                 )
                 self.xAxisRange = len(self.list_x_enabled)
-                print(self.xAxisRange)
                 self.pushButton_5.setEnabled(False)
                 self.pushButton_8.setEnabled(False)
                 self.pushButton_9.setEnabled(False)
-                self.pushButton_10.setEnabled(False)
 
                 self.thread = QThread()
                 self.worker = Worker(self.serial)
@@ -826,20 +819,20 @@ class Ui_MainWindow(QMainWindow):
 
                 self.setMaximumSize(970, 666)
                 self.resize(970, 666)
-                self.groupBox.setGeometry(QRect(10, 0, 341, 211))
-                self.buttonRefresh.setGeometry(QRect(230, 90, 75, 31))
-                self.buttonConnDisconnect.setGeometry(QRect(130, 110, 71, 31))
-                self.comboBox.setGeometry(QRect(130, 80, 71, 22))
-                self.label.setGeometry(QRect(40, 90, 81, 31))
+                self.groupBox.setGeometry(QRect(10, 0, 481, 211))
+                self.buttonRefresh.setGeometry(QRect(310, 90, 81, 41))
+                self.buttonConnDisconnect.setGeometry(QRect(220, 110, 81, 41))
+                self.comboBox.setGeometry(QRect(220, 71, 81, 31))
+                self.label.setGeometry(QRect(120, 90, 91, 31))
 
                 self.groupBox_3.show()
                 self.groupBox_4.show()
-                self.groupBox_5.show()
                 self.groupBox_6.show()
                 self.groupBox_7.show()
                 self.groupBox_8.show()
 
                 self.actionSave.setEnabled(True)
+                self.actionSaveLog.setEnabled(True)
                 self.actionOpen.setEnabled(True)
 
                 qr = self.frameGeometry()
@@ -861,14 +854,15 @@ class Ui_MainWindow(QMainWindow):
             self.buttonRefresh.setEnabled(True)
             self.comboBox.setEnabled(True)
             self.actionSave.setEnabled(False)
+            self.actionSaveLog.setEnabled(False)
             self.actionOpen.setEnabled(False)
             self.resize(359, 158)
             self.setMaximumSize(359, 158)
             self.groupBox.setGeometry(QRect(10, 0, 341, 111))
-            self.buttonRefresh.setGeometry(QRect(260, 30, 75, 31))
-            self.buttonConnDisconnect.setGeometry(QRect(170, 60, 71, 31))
-            self.comboBox.setGeometry(QRect(170, 30, 71, 22))
-            self.label.setGeometry(QRect(50, 20, 81, 31))
+            self.buttonRefresh.setGeometry(QRect(255, 30, 81, 41))
+            self.buttonConnDisconnect.setGeometry(QRect(170, 60, 81, 41))
+            self.comboBox.setGeometry(QRect(170, 20, 81, 31))
+            self.label.setGeometry(QRect(50, 20, 91, 31))
 
     def openAboutWindow(self):
         self.msgBox.about(
@@ -995,9 +989,6 @@ class Ui_MainWindow(QMainWindow):
                 matrix_1 = re.split(r"\t| ", self.inputMatrix_1.text())
                 matrix_2 = re.split(r"\t| ", self.inputMatrix_2.text())
                 matrix_3 = re.split(r"\t| ", self.inputMatrix_3.text())
-                print(matrix_1)
-                print(matrix_2)
-                print(matrix_3)
                 save_data = {
                     "matrixGain": {"satu": matrix_1, "dua": matrix_2, "tiga": matrix_3},
                     "trajectory": {
@@ -1026,60 +1017,69 @@ class Ui_MainWindow(QMainWindow):
                 return
 
     def saveCSVFile(self):
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        if not os.path.exists("saved_log_data"):
-            os.makedirs("saved_log_data")
-        torqueLogPath = os.path.join("saved_log_data", f"torque_log-{timestamp}.csv")
-        trajectoryLogPath = os.path.join(
-            "saved_log_data", f"trajectory_log-{timestamp}.csv"
-        )
-        dataTrajectoryLog = []
-        dataTorqueLog = []
-        for i in range(len(self.data_trajectory_x)):
-            dataTrajectoryLog.append(
-                [
-                    i + 1,
-                    self.timeTrajectory[i],
-                    round(self.data_trajectory_x[i], 3),
-                    round(self.data_trajectory_y[i], 3),
-                    round(self.data_trajectory_z[i], 3),
-                ]
+        try:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            if not os.path.exists("saved_log_data"):
+                os.makedirs("saved_log_data")
+            torqueLogPath = os.path.join("saved_log_data",
+                                         f"torque_log-{timestamp}.csv")
+            trajectoryLogPath = os.path.join(
+                "saved_log_data", f"trajectory_log-{timestamp}.csv"
             )
-            dataTorqueLog.append(
-                [
-                    i + 1,
-                    self.timeTorque[i],
-                    round(self.data_torque_satu[i], 3),
-                    round(self.data_torque_dua[i], 3),
-                    round(self.data_torque_tiga[i], 3),
-                    self.dataPercentageTorqueOne[i],
-                    self.dataPercentageTorqueTwo[i],
-                    self.dataPercentageTorqueThree[i],
-                ]
-            )
-        with open(torqueLogPath, mode="w", newline="", encoding="utf-8") as csvfile:
-            csv_writer = csv.writer(csvfile)
-            csv_writer.writerow(
-                [
-                    "Iteration",
-                    "Time",
-                    "Torque 1",
-                    "Torque 2",
-                    "Torque 3",
-                    "Torque 1 Percentage",
-                    "Torque 2 Percentage",
-                    "Torque 3 Percentage",
-                ]
-            )
-            csv_writer.writerows(dataTorqueLog)
+            dataTrajectoryLog = []
+            dataTorqueLog = []
+            if self.data_trajectory_x:
+                for i in range(len(self.data_trajectory_x)):
+                    dataTrajectoryLog.append(
+                        [
+                            i + 1,
+                            self.timeTrajectory[i],
+                            round(self.data_trajectory_x[i], 3),
+                            round(self.data_trajectory_y[i], 3),
+                            round(self.data_trajectory_z[i], 3),
+                        ]
+                    )
+                    dataTorqueLog.append(
+                        [
+                            i + 1,
+                            self.timeTorque[i],
+                            round(self.data_torque_satu[i], 3),
+                            round(self.data_torque_dua[i], 3),
+                            round(self.data_torque_tiga[i], 3),
+                            self.dataPercentageTorqueOne[i],
+                            self.dataPercentageTorqueTwo[i],
+                            self.dataPercentageTorqueThree[i],
+                        ]
+                    )
+                with open(torqueLogPath, mode="w", newline="",
+                          encoding="utf-8") as csvfile:
+                    csv_writer = csv.writer(csvfile)
+                    csv_writer.writerow(
+                        [
+                            "Iteration",
+                            "Time",
+                            "Torque 1",
+                            "Torque 2",
+                            "Torque 3",
+                            "Torque 1 Percentage",
+                            "Torque 2 Percentage",
+                            "Torque 3 Percentage",
+                        ]
+                    )
+                    csv_writer.writerows(dataTorqueLog)
 
-        with open(trajectoryLogPath, mode="w", newline="", encoding="utf-8") as csvfile:
-            csv_writer = csv.writer(csvfile)
-            csv_writer.writerow(["Iteration", "Time", "X", "Y", "Z"])
-            csv_writer.writerows(dataTrajectoryLog)
+                with open(trajectoryLogPath, mode="w", newline="",
+                          encoding="utf-8") as csvfile:
+                    csv_writer = csv.writer(csvfile)
+                    csv_writer.writerow(["Iteration", "Time", "X", "Y", "Z"])
+                    csv_writer.writerows(dataTrajectoryLog)
 
-        dataTrajectoryLog.clear()
-        dataTorqueLog.clear()
+                dataTrajectoryLog.clear()
+                dataTorqueLog.clear()
+            else:
+                print("not saved")
+        except Exception as a:
+            print(a)
 
     def realTimePlot(self):
         if self.rtpWindow is None:
@@ -1106,11 +1106,12 @@ class Ui_MainWindow(QMainWindow):
         if tipe == "Torque" and not button:
             self.plot_windows[1].show()
 
+
 class RealTimePlotWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("System Response Plot")
-        self.setWindowIcon(QIcon("icon-app.png"))
+        self.setWindowIcon(QIcon(app_icon))
         self.layout = QVBoxLayout(self)
         self.plot = Plot()
         self.layout.insertWidget(0, self.plot)
@@ -1188,7 +1189,7 @@ class PlotWindow(QWidget):
         super().__init__()
         self.gui = gui
         self.windowType = type
-        self.setWindowIcon(QIcon("icon-app.png"))
+        self.setWindowIcon(QIcon(app_icon))
         layout = QVBoxLayout(self)
         self.static_canvas = FigureCanvas(Figure(figsize=(5, 5)))
         layout.addWidget(NavigationToolbar(self.static_canvas, self))

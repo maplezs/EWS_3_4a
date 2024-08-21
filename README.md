@@ -21,7 +21,7 @@
 - Unduh aplikasi melalui [Link ini](https://drive.google.com/file/d/17Mk4Lwvuc8YeCvbq_F39dM77tmaTnbs5/view?usp=sharing)
 - Ekstrak arsip tersebut
 - Buka dan jalankan aplikasi **RobotArmControlApp.exe**
-### Untuk MacOS dan Linuxm, sebelum menggunakan aplikasi, pastikan Python versi 3.11 sudah terinstal
+### Untuk MacOS dan Linux, sebelum menggunakan aplikasi, pastikan Python versi 3.11 sudah terinstal
 - Unduh aplikasi melalui [Link ini](https://github.com/maplezs/EWS_3_4a/archive/refs/heads/main.zip)
 - Ekstrak arsip tersebut
 - Buka terminal / command prompt / powershell
